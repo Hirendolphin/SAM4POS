@@ -1,6 +1,12 @@
 import React from 'react';
 import { Pressable, View, StyleSheet, Text } from 'react-native';
 import { colors } from '../theme/colors';
+import {
+  horizontalScale,
+  moderateScale,
+  verticalScale,
+} from '../theme/Metrics';
+import { FontFamily } from '../assets/fonts';
 
 type Props = {
   checked: boolean;
@@ -10,7 +16,11 @@ type Props = {
 
 export function Checkbox({ checked, onChange, label }: Props) {
   return (
-    <Pressable accessibilityRole="checkbox" onPress={() => onChange(!checked)} style={styles.row}>
+    <Pressable
+      accessibilityRole="checkbox"
+      onPress={() => onChange(!checked)}
+      style={styles.row}
+    >
       <View style={[styles.box, checked && styles.boxChecked]}>
         {checked ? <Text style={styles.tick}>✓</Text> : null}
       </View>
@@ -25,12 +35,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   box: {
-    width: 18,
-    height: 18,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: colors.inputBorder,
-    backgroundColor: '#fff',
+    width: moderateScale(18),
+    height: moderateScale(18),
+    borderRadius: moderateScale(4),
+    borderWidth: moderateScale(1.33),
+    borderColor: colors.black,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -39,15 +49,16 @@ const styles = StyleSheet.create({
   },
   tick: {
     color: colors.primary,
-    fontSize: 14,
-    lineHeight: 16,
+    fontSize: moderateScale(14),
+    lineHeight: verticalScale(16),
+    includeFontPadding: false,
   },
   label: {
-    marginLeft: 8,
+    marginLeft: horizontalScale(8),
     color: colors.text,
-    fontSize: 14,
+    fontWeight: '400',
+    fontFamily: FontFamily.regular,
+    fontSize: moderateScale(13),
+    includeFontPadding: false,
   },
 });
-
-
-

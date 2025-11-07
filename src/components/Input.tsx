@@ -1,6 +1,20 @@
-import React, { useState, forwardRef } from 'react';
-import { TextInput, View, Text, StyleSheet, TextInputProps, Pressable } from 'react-native';
+import React, { forwardRef, useState } from 'react';
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
+} from 'react-native';
+import { Icons } from '../assets/icons';
 import { colors } from '../theme/colors';
+import {
+  horizontalScale,
+  moderateScale,
+  verticalScale,
+} from '../theme/Metrics';
 
 type Props = TextInputProps & {
   label?: string;
@@ -25,8 +39,22 @@ export const Input = forwardRef<TextInput, Props>(function Input(
           {...rest}
         />
         {secureToggle ? (
-          <Pressable accessibilityRole="button" onPress={() => setHidden(v => !v)} style={styles.eyeBtn}>
-            <Text style={styles.eyeText}>{hidden ? '🙈' : '👁️'}</Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => setHidden(v => !v)}
+            style={styles.eyeBtn}
+          >
+            {hidden ? (
+              <Image
+                source={Icons.eye_close}
+                style={{ width: moderateScale(24), height: moderateScale(24) }}
+              />
+            ) : (
+              <Image
+                source={Icons.eye}
+                style={{ width: moderateScale(24), height: moderateScale(24) }}
+              />
+            )}
           </Pressable>
         ) : null}
       </View>
@@ -39,32 +67,30 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   label: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: colors.mutedText,
-    marginBottom: 8,
+    marginBottom: verticalScale(8),
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: moderateScale(1),
     borderColor: colors.inputBorder,
-    backgroundColor: colors.inputBackground,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    height: 56,
+    backgroundColor: colors.white,
+    borderRadius: moderateScale(14),
+    paddingHorizontal: horizontalScale(16),
+    height: verticalScale(56),
+    includeFontPadding: false,
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: moderateScale(16),
     color: colors.text,
   },
   eyeBtn: {
-    paddingLeft: 8,
+    paddingLeft: horizontalScale(8),
   },
   eyeText: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
   },
 });
-
-
-

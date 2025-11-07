@@ -1,37 +1,70 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginScreen from '../screens/LoginScreen';
-import PaymentScreen from '../screens/PaymentScreen';
-import SubscriptionScreen from '../screens/SubscriptionScreen';
-import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
-import TermsConditionsScreen from '../screens/TermsConditionsScreen';
-import { MainTabs } from './MainTabs';
+import LoginScreen from '../screens/loginScreen/LoginScreen';
+import PaymentScreen from '../screens/paymentScreen/PaymentScreen';
+import SubscriptionScreen from '../screens/subscriptionScreen/SubscriptionScreen';
+import PrivacyPolicyScreen from '../screens/privacyPolicyScreen/PrivacyPolicyScreen';
+import TermsConditionsScreen from '../screens/termsConditionsScreen/TermsConditionsScreen';
+import { StyleSheet, View } from 'react-native';
+import { colors } from '../theme/colors';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import { Routes } from '../constants';
+import MainTabs from './MainTabs';
 
 export type RootStackParamList = {
-  Login: undefined;
-  Payment: undefined;
-  Dashboard: undefined;
-  Subscription: undefined;
-  PrivacyPolicy: undefined;
-  TermsConditions: undefined;
+  [Routes.login]: undefined;
+  [Routes.payment]: undefined;
+  [Routes.mainTabs]: undefined;
+  [Routes.subscription]: undefined;
+  [Routes.privacyPolicy]: undefined;
+  [Routes.termsConditions]: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function AppNavigator() {
+  const insets = useSafeAreaInsets();
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Payment" component={PaymentScreen} />
-        <Stack.Screen name="Dashboard" component={MainTabs} />
-        <Stack.Screen name="Subscription" component={SubscriptionScreen} />
-        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
-        <Stack.Screen name="TermsConditions" component={TermsConditionsScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <View style={styles.topContainer}>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <Stack.Navigator
+          screenOptions={{
+            gestureEnabled: false,
+            headerShown: false,
+            animation: 'fade',
+          }}
+        >
+          <Stack.Screen name={Routes.login} component={LoginScreen} />
+          <Stack.Screen name={Routes.payment} component={PaymentScreen} />
+          <Stack.Screen name={Routes.mainTabs} component={MainTabs} />
+          <Stack.Screen
+            name={Routes.subscription}
+            component={SubscriptionScreen}
+          />
+          <Stack.Screen
+            name={Routes.privacyPolicy}
+            component={PrivacyPolicyScreen}
+          />
+          <Stack.Screen
+            name={Routes.termsConditions}
+            component={TermsConditionsScreen}
+          />
+        </Stack.Navigator>
+      </SafeAreaView>
+    </View>
   );
 }
 
-
+const styles = StyleSheet.create({
+  topContainer: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+});
