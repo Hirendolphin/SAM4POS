@@ -29,6 +29,7 @@ export default StyleSheet.create({
   pluLine: {
     color: colors.text,
     flex: 1,
+    includeFontPadding: false,
   },
   pluKey: {
     fontWeight: '600',

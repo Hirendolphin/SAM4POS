@@ -57,7 +57,7 @@ export default StyleSheet.create({
   },
 
   lastSyncContainer: {
-    marginTop: moderateScale(15),
+    marginTop: moderateScale(10),
     backgroundColor: colors.backgorund2,
     paddingVertical: verticalScale(6),
     paddingHorizontal: horizontalScale(12),
@@ -86,7 +86,7 @@ export default StyleSheet.create({
   },
 
   pluHeader: {
-    marginTop: moderateScale(15),
+    marginVertical: verticalScale(15),
     backgroundColor: colors.backgorund3,
     paddingVertical: verticalScale(7),
     paddingHorizontal: horizontalScale(12),

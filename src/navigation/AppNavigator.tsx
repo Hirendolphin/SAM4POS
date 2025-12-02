@@ -13,6 +13,17 @@ import {
 } from 'react-native-safe-area-context';
 import { Routes } from '../constants';
 import MainTabs from './MainTabs';
+import { useAppSelector } from '../redux/hooks';
+import ForceLogoutComponent from '../components/ForceLogoutComponent';
+import EditPLUScreen from '../screens/editPLUScreen/EditPLUScreen';
+import { PLUItem } from '../redux/dataTypes';
+import ForceUpdateModal from '../components/ForceUpdateModal';
+import MaintenanceModal from '../components/MaintenanceModal';
+import SoftUpdateModal from '../components/SoftUpdateModal';
+
+type EditPLU = Partial<{
+  pluData: PLUItem;
+}>;
 
 export type RootStackParamList = {
   [Routes.login]: undefined;
@@ -21,16 +32,30 @@ export type RootStackParamList = {
   [Routes.subscription]: undefined;
   [Routes.privacyPolicy]: undefined;
   [Routes.termsConditions]: undefined;
+  [Routes.editPLUScreen]: EditPLU;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function AppNavigator() {
   const insets = useSafeAreaInsets();
+  const { loggedIn, forceLogout, userDetails }: any = useAppSelector(state => ({
+    loggedIn: state?.auth?.loggedIn ?? false,
+    forceLogout: state?.auth?.forceLogout ?? false,
+    userDetails: state?.auth?.userLoginDetails ?? {},
+  }));
+
   return (
     <View style={styles.topContainer}>
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <Stack.Navigator
+          initialRouteName={
+            loggedIn
+              ? userDetails?.data?.subscription_status === 'active'
+                ? Routes.mainTabs
+                : Routes.mainTabs
+              : Routes.login
+          }
           screenOptions={{
             gestureEnabled: false,
             headerShown: false,
@@ -52,7 +77,14 @@ export function AppNavigator() {
             name={Routes.termsConditions}
             component={TermsConditionsScreen}
           />
+          <Stack.Screen name={Routes.editPLUScreen} component={EditPLUScreen} />
         </Stack.Navigator>
+        {forceLogout?.forcelogout && (
+          <ForceLogoutComponent visible={forceLogout?.forcelogout || false} />
+        )}
+        {/* <ForceUpdateModal visible={true} /> */}
+        {/* <MaintenanceModal visible={true} /> */}
+        {/* <SoftUpdateModal visible={true} /> */}
       </SafeAreaView>
     </View>
   );

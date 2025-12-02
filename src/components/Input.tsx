@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: moderateScale(16),
     color: colors.text,
+    includeFontPadding: false,
   },
   eyeBtn: {
     paddingLeft: horizontalScale(8),

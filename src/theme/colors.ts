@@ -1,6 +1,7 @@
 export const colors = {
   primary: '#1E51E4',
   secondLightPrimary: '#E3EAFF',
+  LightPrimary: '#83a3f9ff',
   background: '#F8F8F8',
   text: '#646568',
   mutedText: '#606060',
@@ -24,4 +25,5 @@ export const colors = {
   lightred2: '#FFF2F2',
   red2: '#F42500',
   switch: '#5B5B5B',
+  verified: '#28A745',
 };

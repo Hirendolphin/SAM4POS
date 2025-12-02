@@ -18,4 +18,6 @@ export const Icons = Object.freeze({
   warning: require('./warning.png'),
   rightArrow: require('./rightArrow.png'),
   flashOn: require('./flashOn.png'),
+  flashOff: require('./flashOff.png'),
+  down: require('./down.png'),
 });

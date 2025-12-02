@@ -9,31 +9,19 @@ import { Routes } from '../../constants';
 import type { RootStackParamList } from '../../navigation/AppNavigator';
 import { colors } from '../../theme/colors';
 import styles from './SettingsScreenStyle';
+import SettingController from './SettingController';
+import DeviceInfo from 'react-native-device-info';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function SettingsScreen() {
-  const [autoSync, setAutoSync] = useState(false);
-  const navigation = useNavigation<NavigationProp>();
-
-  const handleLogout = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Login' }],
-    });
-  };
-
-  const navigateToPrivacyPolicy = () => {
-    navigation.navigate(Routes.privacyPolicy as never);
-  };
-
-  const navigateToTermsConditions = () => {
-    navigation.navigate(Routes.termsConditions as never);
-  };
-
-  const navigateToSubscription = () => {
-    navigation.navigate(Routes.subscription as never);
-  };
+  const {
+    handleLogout,
+    navigateToSubscription,
+    navigateToTermsConditions,
+    navigateToPrivacyPolicy,
+    userDetails,
+  } = SettingController();
 
   return (
     <View style={styles.mainContainer}>
@@ -44,27 +32,31 @@ export default function SettingsScreen() {
         {/* Dealer ID Card */}
         <View style={styles.dealerCard}>
           <Text style={styles.dealerLabel}>Dealer ID :</Text>
-          <Text style={styles.dealerId}>125462117FD</Text>
+          <Text style={styles.dealerId}>
+            {userDetails?.data?.dealer_id || ''}
+          </Text>
         </View>
 
         {/* Subscription Plan Card */}
-        <View style={styles.freeCard}>
-          <View style={styles.row}>
-            <View style={styles.rowFlex}>
-              <Image source={Icons.premium} style={styles.iconSmall} />
-              <Text style={styles.freeText}>Standard Plan</Text>
+        {userDetails?.data?.subscription_status == 'Active' && (
+          <View style={styles.freeCard}>
+            <View style={styles.row}>
+              <View style={styles.rowFlex}>
+                <Image source={Icons.premium} style={styles.iconSmall} />
+                <Text style={styles.freeText}>Standard Plan</Text>
+              </View>
             </View>
+            <View style={styles.divider} />
+            <Text style={styles.freeDesc}>
+              Standard Plan – Active until 22 Oct 2025
+            </Text>
+            <PrimaryButton
+              title="Manage Subscription"
+              onPress={() => {}}
+              style={styles.manageBtn}
+            />
           </View>
-          <View style={styles.divider} />
-          <Text style={styles.freeDesc}>
-            Standard Plan – Active until 22 Oct 2025
-          </Text>
-          <PrimaryButton
-            title="Manage Subscription"
-            onPress={() => {}}
-            style={styles.manageBtn}
-          />
-        </View>
+        )}
 
         {/* Settings Menu */}
         <View style={styles.menuContainer}>
@@ -90,15 +82,15 @@ export default function SettingsScreen() {
           </Pressable>
 
           {/* Auto Sync */}
-          <View style={styles.menuItem}>
+          {/* <View style={styles.menuItem}>
             <Text style={styles.menuText}>Auto Sync</Text>
             <CustomSwitch />
-          </View>
+          </View> */}
 
           {/* Version */}
           <View style={[styles.menuItem, styles.menuItemLast]}>
             <Text style={styles.menuText}>Version</Text>
-            <Text style={styles.versionText}>v1.0.0</Text>
+            <Text style={styles.versionText}>v{DeviceInfo.getVersion()}</Text>
           </View>
         </View>
 
@@ -109,7 +101,7 @@ export default function SettingsScreen() {
       <PrimaryButton
         title="Log Out"
         style={styles.logoutBtn}
-        onPress={() => {}}
+        onPress={handleLogout}
         labelStyle={{ color: colors.red2 }}
       />
     </View>

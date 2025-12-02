@@ -4,14 +4,15 @@ import { useEffect, useState } from 'react';
 import { Keyboard } from 'react-native';
 import { Routes } from '../../constants';
 import { GlobalMetrics } from '../../theme/Metrics';
+import SplashScreen from 'react-native-splash-screen';
 const useCustomTabbar = (props: BottomTabBarProps) => {
   const [keyboardState, setKeyboardState] = useState(false);
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     SplashScreen.hide();
-  //   }, 2000);
-  // }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      SplashScreen.hide();
+    }, 2000);
+  }, []);
 
   useEffect(() => {
     if (GlobalMetrics.isAndroid) {

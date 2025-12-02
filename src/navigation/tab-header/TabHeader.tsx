@@ -9,7 +9,6 @@ import { useRoute } from '@react-navigation/native';
 const TabHeader = () => {
   const {} = useTabHeader();
   const route = useRoute();
-  console.log('route ==>> ', route);
 
   return (
     <View

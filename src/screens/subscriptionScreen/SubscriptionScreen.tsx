@@ -1,60 +1,103 @@
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { PrimaryButton } from '../../components/PrimaryButton';
+import {
+  FlatList,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Icons } from '../../assets/icons';
 import HeaderComponent from '../../components/HeaderComponent';
 import InputTextComponent from '../../components/InputTextComponent';
-import styles from './SubscriptionScreenStyle';
+import { PrimaryButton } from '../../components/PrimaryButton';
 import { Routes } from '../../constants';
-import { Icons } from '../../assets/icons';
+import styles from './SubscriptionScreenStyle';
+import SubscriptionController from './SubscriptionController';
+import { Plan } from '../../redux/dataTypes';
+import { moderateScale } from '../../theme/Metrics';
+import { colors } from '../../theme/colors';
 
-function PlanCard() {
+function PlanCard({
+  item,
+  onSelect,
+  isSelected,
+}: {
+  item: Plan;
+  onSelect: () => void;
+  isSelected: boolean;
+}) {
+  function convertToArray(text: string) {
+    if (!text || typeof text !== 'string') return [];
+    return text
+      .split('\n')
+      .map(item => item.trim())
+      .filter(Boolean);
+  }
   return (
-    <View style={styles.planCard}>
+    <TouchableOpacity
+      style={[
+        styles.planCard,
+        {
+          borderWidth: moderateScale(2),
+          borderColor: isSelected ? colors.primary : colors.background,
+        },
+      ]}
+      activeOpacity={0.8}
+      onPress={onSelect}
+    >
       <View style={styles.planHeaderRow}>
-        <View style={styles.radio}>
-          <Image
-            source={Icons.correct}
-            style={styles.imageStyle}
-            resizeMode="contain"
-          />
+        <View
+          style={[
+            styles.radio,
+            {
+              backgroundColor: isSelected ? colors.primary : colors.background,
+            },
+          ]}
+        >
+          {isSelected && (
+            <Image
+              source={Icons.correct}
+              style={styles.imageStyle}
+              resizeMode="contain"
+            />
+          )}
         </View>
-        <Text style={styles.planTitle}>Standard Plan</Text>
-        <View style={styles.pill}>
+        <Text style={styles.planTitle}>{item?.name}</Text>
+        {/* <View style={styles.pill}>
           <Text style={styles.pillText}>Most Popular</Text>
-        </View>
+        </View> */}
       </View>
       <View style={styles.bullets}>
-        <View style={styles.row}>
-          <View style={styles.bulletsView} />
-          <Text style={styles.bullet}>All Basic features</Text>
-        </View>
-        <View style={styles.row}>
-          <View style={styles.bulletsView} />
-          <Text style={styles.bullet}>Bluetooth Scanner support</Text>
-        </View>
-        <View style={styles.row}>
-          <View style={styles.bulletsView} />
-          <Text style={styles.bullet}>Priority Sync (faster processing)</Text>
-        </View>
-        <View style={styles.row}>
-          <View style={styles.bulletsView} />
-          <Text style={styles.bullet}>Coupons & Discounts</Text>
-        </View>
+        {convertToArray(item?.features).map(item => (
+          <View style={styles.row} key={item}>
+            <View style={styles.bulletsView} />
+            <Text style={styles.bullet}>{item}</Text>
+          </View>
+        ))}
       </View>
-      <Text style={styles.price}>$15 / month</Text>
-    </View>
+      <Text style={styles.price}>${item.amount} / month</Text>
+    </TouchableOpacity>
   );
 }
 export default function SubscriptionScreen() {
-  const navigation = useNavigation();
-  const [couponCode, setCouponCode] = useState('');
+  const {
+    couponCode,
+    navigation,
+    setCouponCode,
+    subscriptions,
+    selectedPlanId,
+    setSelectedPlanId,
+    handleSelectPlan,
+    handleApplyCoupon,
+  } = SubscriptionController();
 
   return (
     <View style={styles.container}>
       <HeaderComponent
         title="Subscription"
-        onPressBack={() => navigation.goBack()}
+        onPressBack={() => navigation.dispatch(CommonActions.goBack())}
       />
 
       <ScrollView
@@ -62,27 +105,49 @@ export default function SubscriptionScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <PlanCard />
-
-        <View style={styles.couponRowWrap}>
-          <View style={styles.couponRow}>
-            <InputTextComponent
-              label="Coupon Input:"
-              placeholdertext="Enter Coupon Code"
-              mainStyle={{ flex: 1 }}
-              inputProps={{ value: couponCode, onChangeText: setCouponCode }}
+        <FlatList
+          data={subscriptions}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <PlanCard
+              item={item}
+              isSelected={item.id === selectedPlanId}
+              onSelect={() => handleSelectPlan(item.id)}
             />
-            <PrimaryButton
-              title="Apply"
-              onPress={() => {}}
-              style={styles.applyBtn}
-            />
-          </View>
-        </View>
+          )}
+          scrollEnabled={false}
+          contentContainerStyle={{ gap: 15 }}
+        />
       </ScrollView>
+      <View style={styles.couponRowWrap}>
+        <View style={styles.couponRow}>
+          <InputTextComponent
+            label="Coupon Input:"
+            placeholdertext="Enter Coupon Code"
+            mainStyle={{ flex: 1 }}
+            inputProps={{ value: couponCode, onChangeText: setCouponCode }}
+          />
+          <PrimaryButton
+            title="Apply"
+            onPress={handleApplyCoupon}
+            style={styles.applyBtn}
+          />
+        </View>
+      </View>
+      {/* {discountInfo && (
+          <Text style={{ color: colors.success, marginTop: 6 }}>
+            {discountInfo?.discount_text || 'Discount applied!'}
+          </Text>
+        )} */}
       <PrimaryButton
         title="Subscribe Now"
-        onPress={() => navigation.navigate(Routes.mainTabs)}
+        onPress={() =>
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: Routes.mainTabs,
+            }),
+          )
+        }
         style={styles.subscribeBtn}
       />
     </View>

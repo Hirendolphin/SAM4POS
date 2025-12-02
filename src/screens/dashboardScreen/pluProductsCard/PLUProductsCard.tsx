@@ -2,6 +2,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { Icons } from '../../../assets/icons';
 import { moderateScale } from '../../../theme/Metrics';
 import styles from './PLUProductsCardStyle';
+import { PLUItem } from '../../../redux/dataTypes';
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -27,16 +28,16 @@ const PLUProductsCard = ({
   openEditModal,
   openDeleteModal,
 }: {
-  item: PLU;
-  openEditModal: (item: PLU) => void;
-  openDeleteModal: (item: PLU) => void;
+  item: PLUItem;
+  openEditModal: (item: PLUItem) => void;
+  openDeleteModal: (item: PLUItem) => void;
 }) => {
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
         <Text style={styles.pluLine}>
           <Text style={styles.pluKey}>PLU Code : </Text>
-          <Text style={styles.pluKey}>{item.code}</Text>
+          <Text style={styles.pluKey}>{item.plu_code}</Text>
         </Text>
         <View style={styles.actions}>
           <Pressable onPress={() => openEditModal(item)} style={styles.editBtn}>
@@ -55,13 +56,17 @@ const PLUProductsCard = ({
         </View>
       </View>
       <View style={styles.separator} />
-      <Row label="Description (PLU Name) :" value={item.name} />
-      <Row label="Group :" value={item.group} />
-      <Row label="Price :" value={item.price} />
-      <Row label="Stock :" value={String(item.stock)} />
+      <Row label="Description (PLU Name) :" value={item.plu_desc} />
+      {/* <Row label="Group :" value={item.group} />
+      <Row label="Price :" value={item.price} /> */}
+      <Row label="Stock :" value={String(item.stock_qty)} />
       <View style={{ height: moderateScale(6) }} />
-      <Text style={styles.rowKey}>KP Description :</Text>
-      <Text style={styles.rowValue}>{item.kpDescription}</Text>
+      {item?.str_kp_desc && (
+        <>
+          <Text style={styles.rowKey}>KP Description :</Text>
+          <Text style={styles.rowValue}>{item.str_kp_desc}</Text>
+        </>
+      )}
     </View>
   );
 };

@@ -39,6 +39,7 @@ export default StyleSheet.create({
     fontWeight: '600',
     fontSize: moderateScale(16),
     marginTop: moderateScale(15),
+    includeFontPadding: false,
   },
   barcodeText: {
     color: colors.primary,

@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import HeaderComponent from '../../components/HeaderComponent';
@@ -15,7 +15,7 @@ export default function TermsConditionsScreen() {
       {/* Header */}
       <HeaderComponent
         title="Terms & Conditions"
-        onPressBack={() => navigation.goBack()}
+        onPressBack={() => navigation.dispatch(CommonActions.goBack())}
       />
 
       {/* Content */}

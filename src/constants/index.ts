@@ -5,6 +5,7 @@ const Routes = Object.freeze({
   subscription: 'Subscription',
   privacyPolicy: 'PrivacyPolicy',
   termsConditions: 'TermsConditions',
+  editPLUScreen: 'EditPLUScreen',
   scan: 'Scan',
   settings: 'Settings',
   mainTabs: 'MainTabs',

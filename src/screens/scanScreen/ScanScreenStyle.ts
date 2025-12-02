@@ -10,7 +10,6 @@ import {
 export default StyleSheet.create({
   container: {
     flex: 1,
-    paddingVertical: moderateScale(20),
     backgroundColor: colors.black,
   },
   cameraContainer: {
@@ -22,10 +21,13 @@ export default StyleSheet.create({
     alignSelf: 'flex-end',
     borderRadius: moderateScale(100),
     marginRight: moderateScale(15),
-    marginBottom: moderateScale(15),
+    position: 'absolute',
+    zIndex: 1,
+    marginTop: verticalScale(15),
   },
   cameraView: {
-    height: '45%',
+    flexGrow: 1,
+    flex: 1,
     backgroundColor: colors.black,
   },
   alignText: {
@@ -34,8 +36,13 @@ export default StyleSheet.create({
     fontWeight: '500',
     color: colors.white,
     textAlign: 'center',
-    marginTop: moderateScale(20),
-    flex: 1,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: 0,
+    textAlignVertical: 'center',
+    marginTop: verticalScale(35),
     includeFontPadding: false,
   },
   bottomContainer: {
@@ -43,7 +50,12 @@ export default StyleSheet.create({
     paddingVertical: verticalScale(12),
     paddingHorizontal: horizontalScale(14),
     marginHorizontal: horizontalScale(20),
+    marginBottom: verticalScale(15),
     borderRadius: moderateScale(10),
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   productCard: {
     paddingVertical: moderateScale(9),

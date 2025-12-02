@@ -1,57 +1,94 @@
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import React from 'react';
+import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import { Icons } from '../../assets/icons';
 import InputTextComponent from '../../components/InputTextComponent';
 import { PrimaryButton } from '../../components/PrimaryButton';
-import { Routes } from '../../constants';
-import type { RootStackParamList } from '../../navigation/AppNavigator';
+import { Plan } from '../../redux/dataTypes';
+import { moderateScale } from '../../theme/Metrics';
+import { colors } from '../../theme/colors';
+import PaymentController from './PaymentController';
 import styles from './PaymentScreenStyle';
 
-function PlanCard() {
+function PlanCard({
+  item,
+  onSelect,
+  isSelected,
+}: {
+  item: Plan;
+  onSelect: () => void;
+  isSelected: boolean;
+}) {
+  function convertToArray(text: string) {
+    if (!text || typeof text !== 'string') return [];
+    return text
+      .split('\n')
+      .map(item => item.trim())
+      .filter(Boolean);
+  }
   return (
-    <View style={styles.planCard}>
-      <View style={styles.planHeaderRow}>
-        <View style={styles.radio}>
-          <Image
-            source={Icons.correct}
-            style={styles.imageStyle}
-            resizeMode="contain"
-          />
-        </View>
-        <Text style={styles.planTitle}>Standard Plan</Text>
-        <View style={styles.pill}>
+    <View key={item.id.toString()}>
+      <TouchableOpacity
+        style={[
+          styles.planCard,
+          {
+            borderWidth: moderateScale(2),
+            borderColor: isSelected ? colors.primary : colors.background,
+          },
+        ]}
+        activeOpacity={0.8}
+        onPress={onSelect}
+      >
+        <View style={styles.planHeaderRow}>
+          <View
+            style={[
+              styles.radio,
+              {
+                backgroundColor: isSelected
+                  ? colors.primary
+                  : colors.background,
+              },
+            ]}
+          >
+            {isSelected && (
+              <Image
+                source={Icons.correct}
+                style={styles.imageStyle}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+          <Text style={styles.planTitle}>{item?.name}</Text>
+          {/* <View style={styles.pill}>
           <Text style={styles.pillText}>Most Popular</Text>
+        </View> */}
         </View>
-      </View>
-      <View style={styles.bullets}>
-        <View style={styles.row}>
-          <View style={styles.bulletsView} />
-          <Text style={styles.bullet}>All Basic features</Text>
+        <View style={styles.bullets}>
+          {convertToArray(item?.features).map(item => (
+            <View style={styles.row} key={item}>
+              <View style={styles.bulletsView} />
+              <Text style={styles.bullet}>{item}</Text>
+            </View>
+          ))}
         </View>
-        <View style={styles.row}>
-          <View style={styles.bulletsView} />
-          <Text style={styles.bullet}>Bluetooth Scanner support</Text>
-        </View>
-        <View style={styles.row}>
-          <View style={styles.bulletsView} />
-          <Text style={styles.bullet}>Priority Sync (faster processing)</Text>
-        </View>
-        <View style={styles.row}>
-          <View style={styles.bulletsView} />
-          <Text style={styles.bullet}>Coupons & Discounts</Text>
-        </View>
-      </View>
-      <Text style={styles.price}>$15 / month</Text>
+        <Text style={styles.price}>${item.amount} / month</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 export default function PaymentScreen() {
-  const [coupon, setCoupon] = useState('');
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const {
+    couponCode,
+    navigation,
+    setCouponCode,
+    subscriptions,
+    selectedPlanId,
+    setSelectedPlanId,
+    handleSelectPlan,
+    handleSubscription,
+    handleSkipNow,
+    handleApplyCoupon,
+  } = PaymentController();
 
   return (
     <View style={styles.container}>
@@ -60,7 +97,21 @@ export default function PaymentScreen() {
         Select a plan that fits your store's needs.
       </Text>
 
-      <PlanCard />
+      {/* <PlanCard /> */}
+
+      <FlatList
+        data={subscriptions}
+        keyExtractor={(item, index) => index.toString()}
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <PlanCard
+            item={item}
+            isSelected={item.id === selectedPlanId}
+            onSelect={() => handleSelectPlan(item.id)}
+          />
+        )}
+        contentContainerStyle={{ gap: 15 }}
+      />
 
       <View style={styles.couponRowWrap}>
         <View style={styles.couponRow}>
@@ -68,11 +119,11 @@ export default function PaymentScreen() {
             label="Coupon Input:"
             placeholdertext="Enter Coupon Code"
             mainStyle={{ flex: 1 }}
-            inputProps={{ value: coupon, onChangeText: setCoupon }}
+            inputProps={{ value: couponCode, onChangeText: setCouponCode }}
           />
           <PrimaryButton
             title="Apply"
-            onPress={() => {}}
+            onPress={handleApplyCoupon}
             style={styles.applyBtn}
           />
         </View>
@@ -80,10 +131,12 @@ export default function PaymentScreen() {
       <View style={styles.marginBottom}>
         <PrimaryButton
           title="Subscribe Now"
-          onPress={() => navigation.navigate(Routes.mainTabs)}
+          onPress={handleSubscription}
           style={styles.subscribeBtn}
         />
-        <Text style={styles.skip}>Skip for Now</Text>
+        <Text onPress={handleSkipNow} style={styles.skip}>
+          Skip for Now
+        </Text>
       </View>
     </View>
   );

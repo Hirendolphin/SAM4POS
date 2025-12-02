@@ -45,7 +45,8 @@ export default StyleSheet.create({
     width: moderateScale(18),
     height: moderateScale(18),
     borderRadius: moderateScale(12),
-    backgroundColor: colors.primary,
+    borderWidth: moderateScale(2),
+    borderColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: horizontalScale(10),
@@ -111,8 +112,8 @@ export default StyleSheet.create({
     includeFontPadding: false,
   },
   couponRowWrap: {
-    flex: 1,
-    marginTop: verticalScale(20),
+    // flex: 1,
+    marginTop: verticalScale(10),
   },
   couponLabel: {
     color: colors.text,

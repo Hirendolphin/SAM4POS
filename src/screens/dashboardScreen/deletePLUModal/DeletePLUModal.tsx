@@ -38,7 +38,7 @@ export function DeletePLUModal({
             Are you sure you want to delete this PLU?
           </Text>
           <Text style={styles.barcodeText}>
-            {pluName} (Barcode: {pluBarcode})
+            {pluName} (PLU code: {pluBarcode})
           </Text>
 
           <PrimaryButton

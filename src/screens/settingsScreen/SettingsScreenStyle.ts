@@ -125,6 +125,7 @@ export default StyleSheet.create({
     fontWeight: '400',
     fontFamily: FontFamily.regular,
     color: colors.textGray,
+    includeFontPadding: false,
   },
   logoutBtn: {
     backgroundColor: colors.lightred2,

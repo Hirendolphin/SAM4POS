@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { FontFamily } from '../../assets/fonts';
+import { FontFamily } from '../../assets/fonts/index';
 import { colors } from '../../theme/colors';
 import {
   horizontalScale,
