@@ -77,9 +77,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.sam4pos"
+    namespace "com.dws.sam4pos"
     defaultConfig {
-        applicationId "com.sam4pos"
+        applicationId "com.dws.sam4pos"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

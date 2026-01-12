@@ -36,7 +36,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>SAM4POS needs access to your Camera.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>SAM4POS needs access to your location.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIAppFonts</key>

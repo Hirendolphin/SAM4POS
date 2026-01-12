@@ -25,6 +25,9 @@ const PaymentController = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
     subscriptions[0]?.id || null,
   );
+  const [couponMessage, setCouponMessage] = useState(null);
+  const [isApplying, setIsApplying] = useState(false);
+  const [discount, setDiscount] = useState(null);
 
   const handleSelectPlan = (id: string) => {
     setSelectedPlanId(id);
@@ -66,15 +69,56 @@ const PaymentController = () => {
       showNotificationMessage('Please select a plan before applying a coupon.');
       return;
     }
-
+    setIsApplying(true);
+    setCouponMessage(null);
     try {
-      const response = await dispatch(
-        postCouponValidate({ coupon_code: couponCode.trim() }),
-      );
-      console.log('response postCouponValidate==>>  ', response);
-    } catch (error: any) {
-      console.log('error ===>>> ', error.response);
+      const response: any = await dispatch(
+        postCouponValidate({
+          coupon_code: couponCode.trim(),
+        }),
+      ).unwrap();
+      const payload = response?.payload;
+      console.log('response ==>>> ', response);
+      if (payload?.status) {
+        const discountValue = payload?.data?.discount ?? 0;
+        const discountType = payload?.data?.type ?? 'fixed';
+
+        // calculate final price if needed (example using subscription amount)
+        const selectedPlan = subscriptions.find(
+          (p: any) => p.id === selectedPlanId,
+        );
+        const planAmount = Number(selectedPlan?.amount ?? 0);
+
+        let finalPrice = planAmount;
+        if (discountType === 'percentage') {
+          finalPrice = +(
+            planAmount -
+            (planAmount * discountValue) / 100
+          ).toFixed(2);
+        } else {
+          finalPrice = +(planAmount - discountValue).toFixed(2);
+        }
+
+        setDiscount({ amount: discountValue, type: discountType, finalPrice });
+        setCouponMessage({
+          type: 'success',
+          text: payload?.message || 'Coupon applied successfully!',
+        });
+      } else {
+        // API returned status false
+        setCouponMessage({
+          type: 'error',
+          text: payload?.message || 'Invalid coupon code.',
+        });
+        setDiscount(null);
+      }
+    } catch (error) {
+      setCouponMessage({
+        type: 'error',
+        text: 'Something went wrong. Try again.',
+      });
     } finally {
+      setIsApplying(false);
     }
   };
 
@@ -89,6 +133,8 @@ const PaymentController = () => {
     handleSubscription,
     handleSkipNow,
     handleApplyCoupon,
+    couponMessage,
+    discount,
   };
 };
 

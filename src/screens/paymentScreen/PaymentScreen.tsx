@@ -1,5 +1,13 @@
 import React from 'react';
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { Icons } from '../../assets/icons';
 import InputTextComponent from '../../components/InputTextComponent';
 import { PrimaryButton } from '../../components/PrimaryButton';
@@ -8,6 +16,7 @@ import { moderateScale } from '../../theme/Metrics';
 import { colors } from '../../theme/colors';
 import PaymentController from './PaymentController';
 import styles from './PaymentScreenStyle';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 function PlanCard({
   item,
@@ -88,56 +97,87 @@ export default function PaymentScreen() {
     handleSubscription,
     handleSkipNow,
     handleApplyCoupon,
+    couponMessage,
+    discount,
   } = PaymentController();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Choose Your Plan</Text>
-      <Text style={styles.subtitle}>
-        Select a plan that fits your store's needs.
-      </Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Choose Your Plan</Text>
+        <Text style={styles.subtitle}>
+          Select a plan that fits your store's needs.
+        </Text>
 
-      {/* <PlanCard /> */}
+        {/* <PlanCard /> */}
 
-      <FlatList
-        data={subscriptions}
-        keyExtractor={(item, index) => index.toString()}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <PlanCard
-            item={item}
-            isSelected={item.id === selectedPlanId}
-            onSelect={() => handleSelectPlan(item.id)}
-          />
+        <FlatList
+          data={subscriptions}
+          keyExtractor={(item, index) => index.toString()}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <PlanCard
+              item={item}
+              isSelected={item.id === selectedPlanId}
+              onSelect={() => handleSelectPlan(item.id)}
+            />
+          )}
+          contentContainerStyle={{ gap: 15 }}
+        />
+
+        <View style={styles.couponRowWrap}>
+          <View style={styles.couponRow}>
+            <InputTextComponent
+              label="Coupon Input:"
+              placeholdertext="Enter Coupon Code"
+              mainStyle={{ flex: 1 }}
+              inputProps={{ value: couponCode, onChangeText: setCouponCode }}
+            />
+            <PrimaryButton
+              title="Apply"
+              onPress={handleApplyCoupon}
+              style={styles.applyBtn}
+            />
+          </View>
+        </View>
+        {couponMessage && (
+          <Text
+            style={{
+              color:
+                couponMessage.type === 'success' ? colors.verified : colors.red,
+              marginTop: 6,
+              fontSize: moderateScale(13),
+              fontWeight: '500',
+            }}
+          >
+            {couponMessage.text}
+          </Text>
         )}
-        contentContainerStyle={{ gap: 15 }}
-      />
-
-      <View style={styles.couponRowWrap}>
-        <View style={styles.couponRow}>
-          <InputTextComponent
-            label="Coupon Input:"
-            placeholdertext="Enter Coupon Code"
-            mainStyle={{ flex: 1 }}
-            inputProps={{ value: couponCode, onChangeText: setCouponCode }}
-          />
+        {discount && (
+          <View style={styles.discountBox}>
+            <Text style={styles.discountText}>
+              Discount applied: -${discount.amount}
+            </Text>
+            <Text style={styles.discountFinalPrice}>
+              Final Price: ${discount.final_price}
+            </Text>
+          </View>
+        )}
+        <View style={styles.marginBottom}>
           <PrimaryButton
-            title="Apply"
-            onPress={handleApplyCoupon}
-            style={styles.applyBtn}
+            title="Subscribe Now"
+            onPress={handleSubscription}
+            style={styles.subscribeBtn}
           />
+          <Text onPress={handleSkipNow} style={styles.skip}>
+            Skip for Now
+          </Text>
         </View>
       </View>
-      <View style={styles.marginBottom}>
-        <PrimaryButton
-          title="Subscribe Now"
-          onPress={handleSubscription}
-          style={styles.subscribeBtn}
-        />
-        <Text onPress={handleSkipNow} style={styles.skip}>
-          Skip for Now
-        </Text>
-      </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

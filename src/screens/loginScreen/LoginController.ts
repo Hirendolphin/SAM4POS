@@ -37,7 +37,6 @@ const LoginController = () => {
     if (!loggedIn) return;
 
     const status = userDetails?.data?.subscription_status;
-    console.log('subscription_status ==>', status);
 
     if (status === 'active') {
       navigation.dispatch(

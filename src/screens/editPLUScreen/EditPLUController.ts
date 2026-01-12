@@ -15,7 +15,10 @@ import {
 import { PLUItem } from '../../redux/dataTypes';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { apiURLs, get, post } from '../../services/api';
-import { showNotificationMessage } from '../utils/helperFunction';
+import {
+  handleAppStateFlags,
+  showNotificationMessage,
+} from '../utils/helperFunction';
 
 const EditPLUController = () => {
   const route = useRoute<any>();
@@ -25,6 +28,8 @@ const EditPLUController = () => {
     statusGroup: state?.plu?.statusGroup ?? [],
     priceLevels: state?.plu?.priceLevel ?? [],
   }));
+
+  console.log('pluData ==>> ', pluData);
 
   const [prices, setPrices] = useState(pluData?.prices);
   useEffect(() => {
@@ -107,8 +112,12 @@ const EditPLUController = () => {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
-        } else if (typeof error.response?.data?.error === 'string') {
-          showNotificationMessage(error.response.data.error);
+        } else if (error.response?.data?.status === false) {
+          const eData = error?.response?.data;
+          const handled = handleAppStateFlags(eData, dispatch);
+          if (!handled && typeof error.response?.data?.error === 'string') {
+            showNotificationMessage(error.response.data.error);
+          }
         }
       }
     } finally {
@@ -227,7 +236,6 @@ const EditPLUController = () => {
   };
 
   const handleSave = async () => {
-    setIsLoading(true);
     // 1. Make sure at least one price exists
     if (!prices || prices.length === 0) {
       showNotificationMessage('Please add at least one price.');
@@ -247,10 +255,9 @@ const EditPLUController = () => {
       id_group3: groupLinks.link3 || 0,
     };
 
-    console.log('UPDATE PLU PAYLOAD ==>', payload);
+    setIsLoading(true);
     try {
       const response = await post(apiURLs.updatePlu, payload);
-      console.log('edit data response ==>> ', response?.data);
       showNotificationMessage(response?.data?.message);
       if (response?.data?.status) {
         navigation.dispatch(CommonActions.goBack());
@@ -262,8 +269,12 @@ const EditPLUController = () => {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
-        } else if (typeof error.response?.data?.error === 'string') {
-          showNotificationMessage(error.response.data.error);
+        } else if (error.response?.data?.status === false) {
+          const eData = error?.response?.data;
+          const handled = handleAppStateFlags(eData, dispatch);
+          if (!handled && typeof error.response?.data?.error === 'string') {
+            showNotificationMessage(error.response.data.error);
+          }
         }
       }
     } finally {

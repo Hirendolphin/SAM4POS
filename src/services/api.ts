@@ -17,6 +17,8 @@ const apiInstance = axios.create({
     'Accept-Encoding': 'gzip, deflate, br',
     Connection: 'keep-alive',
     'X-API-Key': 'SAMPOS-API-12345',
+    'X-App-Version': AppVersion,
+    'X-API-Version': APIVersion,
   },
 });
 
@@ -41,7 +43,6 @@ const get = (url = '', data = {}) => {
         resolve(res);
       })
       .catch(err => {
-        console.log('err get==>>' + url + err?.response);
         reject(err);
       });
   });
@@ -55,7 +56,6 @@ const deleteApi = (url = '') => {
         resolve(res);
       })
       .catch(err => {
-        console.log('err delete==>>' + url + err?.response);
         reject(err);
       });
   });
@@ -69,7 +69,6 @@ const post = (url = '', data = {}) => {
         resolve(res);
       })
       .catch(err => {
-        console.log('errpost ==>>' + url + err?.response);
         reject(err);
       });
   });
@@ -83,7 +82,6 @@ const put = (url = '', data = {}) => {
         resolve(res);
       })
       .catch(err => {
-        console.log('err put==>>' + url + JSON.stringify(err?.response));
         reject(err);
       });
   });
@@ -107,6 +105,9 @@ type ApiUrls = {
   addPlu: string;
   updatePlu: string;
   deletePlu: string;
+  appVersionCheck: string;
+  transaction: string;
+  capture: string;
 };
 
 const apiURLs: ApiUrls = {
@@ -128,6 +129,9 @@ const apiURLs: ApiUrls = {
   addPlu: 'plu/create/',
   updatePlu: 'plu/update/',
   deletePlu: 'plu/delete/',
+  appVersionCheck: 'check-version/',
+  transaction: 'transaction/',
+  capture: 'transaction/capture/',
 };
 
 export {

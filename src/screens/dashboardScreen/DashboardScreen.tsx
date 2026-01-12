@@ -22,7 +22,6 @@ import InputTextComponent from '../../components/InputTextComponent';
 export default function DashboardScreen() {
   const {
     userDetails,
-    SAMPLE_PLUS,
     openDeleteModal,
     setSelectedPLU,
     openEditModal,
@@ -41,6 +40,8 @@ export default function DashboardScreen() {
     loading,
     search,
     setSearch,
+    lastSync,
+    getposDetails,
   } = DashboardController();
 
   return (
@@ -67,12 +68,12 @@ export default function DashboardScreen() {
       )}
 
       {/* Last Sync Section */}
-      {/* <View style={styles.lastSyncContainer}>
-        <Text style={styles.lastSyncText}>Last Sync: 22 Sep 2025, 4:32 PM</Text>
-        <View style={styles.refreshButton}>
+      <View style={styles.lastSyncContainer}>
+        <Text style={styles.lastSyncText}>Last Sync: {lastSync}</Text>
+        <Pressable style={styles.refreshButton} onPress={getposDetails}>
           <Image source={Icons.refresh} style={styles.refreshIcon} />
-        </View>
-      </View> */}
+        </Pressable>
+      </View>
 
       <InputTextComponent
         placeholdertext="Search PLU"
@@ -146,7 +147,15 @@ export default function DashboardScreen() {
         (loading && (
           <ProgressModal
             ismodelVisible={fetching || loading}
-            label="Please wait… retrieving PLU details."
+            label={
+              fetching
+                ? 'Getting PLU Products'
+                : deleteModalVisible
+                ? 'Deleting PLU'
+                : addModalVisible
+                ? 'Adding PLU'
+                : 'Please wait… retrieving PLU details.'
+            }
           />
         ))}
     </View>

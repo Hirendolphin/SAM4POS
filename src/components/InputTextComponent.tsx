@@ -81,6 +81,7 @@ const InputTextComponent: React.FC<InputTextComponentType> = props => {
         <View style={[styles.mainContainer, { ...boxStyle }]}>
           <TextInput
             ref={inputRef}
+            returnKeyType="done"
             placeholderTextColor={colors.placeholder}
             selectionColor={colors.primary}
             placeholder={placeholdertext}
@@ -110,6 +111,7 @@ const styles = StyleSheet.create({
       Platform.OS === 'ios' ? moderateScale(8) : moderateScale(0),
   },
   inputTextStyle: {
+    flex: 1,
     color: colors.black,
     fontSize: moderateScale(16),
     paddingLeft: moderateScale(20),

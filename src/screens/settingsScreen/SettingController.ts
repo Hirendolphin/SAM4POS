@@ -22,7 +22,6 @@ const SettingController = () => {
       const response = await post(apiURLs.logout);
       dispatch(userLogout());
     } catch (error) {
-      console.log(error);
       dispatch(userLogout());
     }
     navigation.dispatch(
@@ -56,12 +55,21 @@ const SettingController = () => {
       }),
     );
   };
+  const navigateToBarcodeSetting = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: Routes.barcodeSettingScreen,
+      }),
+    );
+  };
+
   return {
     handleLogout,
     navigateToSubscription,
     navigateToTermsConditions,
     navigateToPrivacyPolicy,
     userDetails,
+    navigateToBarcodeSetting,
   };
 };
 

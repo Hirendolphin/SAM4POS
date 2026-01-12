@@ -21,6 +21,7 @@ export default function SettingsScreen() {
     navigateToTermsConditions,
     navigateToPrivacyPolicy,
     userDetails,
+    navigateToBarcodeSetting,
   } = SettingController();
 
   return (
@@ -61,6 +62,11 @@ export default function SettingsScreen() {
         {/* Settings Menu */}
         <View style={styles.menuContainer}>
           {/* Privacy Policy */}
+          <Pressable style={styles.menuItem} onPress={navigateToBarcodeSetting}>
+            <Text style={styles.menuText}>Barcode Settings</Text>
+            <Image source={Icons.rightArrow} />
+          </Pressable>
+
           <Pressable style={styles.menuItem} onPress={navigateToPrivacyPolicy}>
             <Text style={styles.menuText}>Privacy Policy</Text>
             <Image source={Icons.rightArrow} />

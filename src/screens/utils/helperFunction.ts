@@ -1,5 +1,7 @@
 import Toast from 'react-native-simple-toast';
 import { Platform } from 'react-native';
+import { forceupdate, maintenanceMode } from '../../redux/actions/authAction';
+import { Dispatch } from '@reduxjs/toolkit';
 
 export const showNotificationMessage = (message: string) => {
   if (Platform.OS == 'android') {
@@ -43,4 +45,54 @@ export const getTimeStamp = () => {
   const ss = padTo2Digits(date.getSeconds());
 
   return `${yyyy}${MM}${dd}_${HH}${mm}${ss}`;
+};
+
+function normalizeBarcodeType(type: string) {
+  if (type === 'upce') return 'upc-e';
+  if (type === 'upca') return 'upc-a';
+  return type;
+}
+
+export const processBarcode = (code: string, type: string, settings: any) => {
+  let result = code;
+  let normalizedType = normalizeBarcodeType(type);
+
+  // EAN-13 starting with 0 → UPC-A
+  if (normalizedType === 'ean-13' && code.startsWith('0')) {
+    normalizedType = 'upc-a';
+    result = code.substring(1);
+  }
+
+  const rules = settings[normalizedType];
+  if (!rules) return result;
+
+  if (rules.transmitLeadingDigit && result.length > 1) {
+    result = result.substring(1);
+  }
+
+  if (rules.transmitCheckDigit && result.length > 1) {
+    result = result.substring(0, result.length - 1);
+  }
+
+  return result;
+};
+
+export const handleAppStateFlags = (data: any, dispatch: Dispatch): boolean => {
+  if (!data) return false;
+  let triggered = false;
+
+  if (data?.force_update === true || data?.data?.force_update === true) {
+    dispatch(forceupdate(true));
+    triggered = true;
+  }
+
+  if (
+    data?.maintenance_mode === true ||
+    data?.data?.maintenance_mode === true
+  ) {
+    dispatch(maintenanceMode(true));
+    triggered = true;
+  }
+
+  return triggered;
 };

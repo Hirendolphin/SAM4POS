@@ -1,4 +1,4 @@
-package com.sam4pos
+package com.dws.sam4pos
 
 import android.os.Bundle
 import com.facebook.react.ReactActivity

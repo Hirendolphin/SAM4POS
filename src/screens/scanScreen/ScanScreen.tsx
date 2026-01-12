@@ -8,7 +8,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Image,
+  Keyboard,
+  KeyboardAvoidingView,
   Linking,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -46,16 +49,20 @@ import {
   RESULTS,
 } from 'react-native-permissions';
 import axios from 'axios';
-import { showNotificationMessage } from '../utils/helperFunction';
+import {
+  handleAppStateFlags,
+  processBarcode,
+  showNotificationMessage,
+} from '../utils/helperFunction';
 import { userForceLogout } from '../../redux/actions/authAction';
-import { useAppDispatch } from '../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import {
   getPLU,
   getPriceLevel,
   getStatusGroup,
 } from '../../redux/actions/pluAction';
 import ProgressModal from '../../components/ProgressModal';
-
+const isAndroid15 = Platform.OS === 'android' && Platform.Version >= 35;
 type TabNavigationProp = BottomTabNavigationProp<any>;
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -88,6 +95,32 @@ export default function ScanScreen() {
   const { hasPermission } = useCameraPermission();
   const [loading, setLoading] = useState(false);
   const [permissionModalVisible, setPermissionModalVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const { barcodeSettings }: any = useAppSelector(state => ({
+    barcodeSettings: state?.barcodeSetting || {},
+  }));
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      e => {
+        setKeyboardHeight(e.endCoordinates.height);
+      },
+    );
+
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+      },
+    );
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -135,17 +168,26 @@ export default function ScanScreen() {
       'code-93',
     ],
     onCodeScanned: async codes => {
-      console.log('code ==>', codes);
-
       if (!isScanning) return;
       setIsScanning(false);
 
-      const scannedCode = codes?.[0]?.value;
-      console.log('Scanned Code:', scannedCode);
+      let scannedCode = codes?.[0]?.value?.toString() || '';
+      const codeType = codes?.[0]?.type;
+      console.log('codeType ==>> ', codeType);
+
+      // console.log('codes ==>>', codes?.[0]);
+
+      // if (scannedCode.length === 13 && scannedCode.startsWith('0')) {
+      //   scannedCode = scannedCode.substring(1);
+      // }
+
+      // scannedCode = scannedCode.replace(/^0+/, '');
+      scannedCode = processBarcode(scannedCode, codeType, barcodeSettings);
+
+      console.log('scannedCode ==>> ', scannedCode);
 
       try {
         const response = await post(apiURLs.pluScan, { plu_code: scannedCode });
-        console.log('response', response);
         if (response?.data?.status) {
           setProductFound(true);
           setProductNotFound(false);
@@ -175,8 +217,12 @@ export default function ScanScreen() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
-        } else if (typeof error.response?.data?.error === 'string') {
-          showNotificationMessage(error.response.data.error);
+        } else if (error.response?.data?.status === false) {
+          const eData = error?.response?.data;
+          const handled = handleAppStateFlags(eData, dispatch);
+          if (!handled && typeof error.response?.data?.error === 'string') {
+            showNotificationMessage(error.response.data.error);
+          }
         }
       }
     } finally {
@@ -185,46 +231,94 @@ export default function ScanScreen() {
     }
   };
 
+  // const handlePermissions = async () => {
+  //   try {
+  //     const checkMultipleResponse = await checkMultiple([
+  //       PERMISSIONS.IOS.CAMERA,
+  //       PERMISSIONS.ANDROID.CAMERA,
+  //     ]);
+
+  //     const checkMultipleResponseState =
+  //       (GlobalMetrics.isIos &&
+  //         checkMultipleResponse[PERMISSIONS.IOS.CAMERA] === RESULTS.GRANTED) ||
+  //       (GlobalMetrics.isAndroid &&
+  //         checkMultipleResponse[PERMISSIONS.ANDROID.CAMERA] ===
+  //           RESULTS.GRANTED);
+
+  //     if (!checkMultipleResponseState) {
+  //       const requestMultipleResponse = await requestMultiple([
+  //         PERMISSIONS.IOS.CAMERA,
+  //         PERMISSIONS.ANDROID.CAMERA,
+  //       ]);
+
+  //       const requestMultipleResponseState =
+  //         (GlobalMetrics.isIos &&
+  //           requestMultipleResponse[PERMISSIONS.IOS.CAMERA] ===
+  //             RESULTS.GRANTED) ||
+  //         (GlobalMetrics.isAndroid &&
+  //           requestMultipleResponse[PERMISSIONS.ANDROID.CAMERA] ===
+  //             RESULTS.GRANTED);
+
+  //       if (!requestMultipleResponseState) {
+  //         setPermissionModalVisible(true);
+  //         return false;
+  //       } else {
+  //         return true;
+  //       }
+  //     } else {
+  //       return true;
+  //     }
+  //   } catch (err) {
+  //     return false;
+  //   }
+  // };
+
   const handlePermissions = async () => {
     try {
-      const checkMultipleResponse = await checkMultiple([
-        PERMISSIONS.IOS.CAMERA,
-        PERMISSIONS.ANDROID.CAMERA,
-      ]);
+      // Platform-specific permission
+      const permission = GlobalMetrics.isIos
+        ? PERMISSIONS.IOS.CAMERA
+        : PERMISSIONS.ANDROID.CAMERA;
 
-      const checkMultipleResponseState =
-        (GlobalMetrics.isIos &&
-          checkMultipleResponse[PERMISSIONS.IOS.CAMERA] === RESULTS.GRANTED) ||
-        (GlobalMetrics.isAndroid &&
-          checkMultipleResponse[PERMISSIONS.ANDROID.CAMERA] ===
-            RESULTS.GRANTED);
+      // 1️⃣ Check permission
+      const checkResponse = await checkMultiple([permission]);
+      const isGranted = checkResponse[permission] === RESULTS.GRANTED;
 
-      if (!checkMultipleResponseState) {
-        const requestMultipleResponse = await requestMultiple([
-          PERMISSIONS.IOS.CAMERA,
-          PERMISSIONS.ANDROID.CAMERA,
-        ]);
-
-        const requestMultipleResponseState =
-          (GlobalMetrics.isIos &&
-            requestMultipleResponse[PERMISSIONS.IOS.CAMERA] ===
-              RESULTS.GRANTED) ||
-          (GlobalMetrics.isAndroid &&
-            requestMultipleResponse[PERMISSIONS.ANDROID.CAMERA] ===
-              RESULTS.GRANTED);
-
-        if (!requestMultipleResponseState) {
-          setPermissionModalVisible(true);
-          return false;
-        } else {
-          return true;
-        }
-      } else {
+      if (isGranted) {
         return true;
       }
+
+      // 2️⃣ Request permission
+      const requestResponse = await requestMultiple([permission]);
+      const isRequestGranted = requestResponse[permission] === RESULTS.GRANTED;
+
+      if (!isRequestGranted) {
+        setPermissionModalVisible(true);
+        return false;
+      }
+
+      return true;
     } catch (err) {
       return false;
     }
+  };
+
+  const getBottomOffset = () => {
+    if (Platform.OS === 'android') {
+      if (!isAndroid15) {
+        return verticalScale(0);
+      }
+    }
+    if (!keyboardHeight) {
+      return verticalScale(15);
+    }
+
+    if (Platform.OS === 'ios') {
+      return keyboardHeight - verticalScale(50);
+    }
+
+    // Android 15+ safe adjustment
+    return Math.max(keyboardHeight - verticalScale(20), verticalScale(10));
   };
 
   return (
@@ -244,7 +338,7 @@ export default function ScanScreen() {
             <Camera
               style={StyleSheet.absoluteFill}
               device={cameraDevice}
-              isActive={isScanning}
+              isActive={addModalVisible ? false : isScanning}
               codeScanner={codeScanner}
               lowLightBoost={cameraDevice?.supportsLowLightBoost}
               enableZoomGesture={true}
@@ -298,7 +392,14 @@ export default function ScanScreen() {
           <Text style={styles.alignText}>Align barcode within the frame</Text>
         )}
         {isActive && (
-          <View style={styles.bottomContainer}>
+          <View
+            style={[
+              styles.bottomContainer,
+              {
+                bottom: getBottomOffset(),
+              },
+            ]}
+          >
             {!productFound && !productNotFound && (
               <View>
                 <InputTextComponent
@@ -309,6 +410,7 @@ export default function ScanScreen() {
                       setBarcode(text);
                     },
                     keyboardType: 'numeric',
+                    returnKeyType: 'done',
                   }}
                 />
                 <PrimaryButton

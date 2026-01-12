@@ -1,46 +1,42 @@
-import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { getPLU } from '../../redux/actions/pluAction';
+import {
+  getPLU,
+  getPriceLevel,
+  getStatusGroup,
+  setLastSync,
+} from '../../redux/actions/pluAction';
 import { PLUItem } from '../../redux/dataTypes';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import {
+  CommonActions,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import { Routes } from '../../constants';
 import { apiURLs, deleteApi, get, post } from '../../services/api';
 import { userForceLogout } from '../../redux/actions/authAction';
-import { showNotificationMessage } from '../utils/helperFunction';
-import axios from 'axios';
-
-type PLU = {
-  id: string;
-  code: string;
-  name: string;
-  group: string;
-  price: string;
-  stock: number;
-  kpDescription: string;
-};
-
-const SAMPLE_PLUS: PLU[] = Array.from({ length: 8 }).map((_, i) => ({
-  id: String(i + 1),
-  code: String(900000 + i),
-  name: 'Lorem Ipsum',
-  group: `Group ${1 + (i % 3)}`,
-  price: `$ ${(30 + i).toString()}`,
-  stock: 5 + (i % 4),
-  kpDescription:
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-}));
+import {
+  handleAppStateFlags,
+  showNotificationMessage,
+} from '../utils/helperFunction';
 
 const DashboardController = () => {
+  const dispatch = useAppDispatch();
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState<string>('');
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedPLU, setSelectedPLU] = useState<PLUItem | null>(null);
-  const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
-  const { pluList, fetching, currentPage, loadingMore } = useAppSelector(
-    state => state?.plu || [],
+  const { pluList, fetching, currentPage, loadingMore, lastSync } =
+    useAppSelector(state => state?.plu || []);
+
+  useFocusEffect(
+    useCallback(() => {
+      setSearch('');
+    }, []),
   );
-  const [search, setSearch] = useState<string>('');
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -54,7 +50,6 @@ const DashboardController = () => {
   const handleLoadMore = () => {
     if (pluList.next && !loadingMore) {
       const searchText = typeof search === 'string' ? search.trim() : '';
-
       dispatch(
         getPLU({
           page: currentPage + 1,
@@ -70,6 +65,7 @@ const DashboardController = () => {
     getposDetails();
     // getpluAPI(1, false, '');
   }, []);
+
   const { userDetails }: any = useAppSelector(state => ({
     userDetails: state?.auth?.userLoginDetails ?? {},
   }));
@@ -92,25 +88,52 @@ const DashboardController = () => {
   const getposDetails = async () => {
     try {
       setLoading(true);
+      setSearch('');
       const response = await get(`${apiURLs?.posDetails}`);
       if (response?.status) {
+        const now = new Date();
+
+        const day = now.getDate().toString().padStart(2, '0');
+        const month = now.toLocaleString('en-US', { month: 'short' });
+        const year = now.getFullYear();
+
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        hours = hours % 12 || 12; // convert to 12-hour format
+
+        const formattedDate = `${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
+
+        // ✅ Store in Redux
+        dispatch(setLastSync(formattedDate));
+
         setTimeout(() => {
           getpluAPI(1, false, '');
         }, 500);
+
+        setTimeout(async () => {
+          await dispatch(getPriceLevel()).unwrap();
+          await dispatch(getStatusGroup()).unwrap();
+        }, 600);
       }
     } catch (error: any) {
-      console.log('error ===>> ', error?.response);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
-        } else if (typeof error.response?.data?.error === 'string') {
-          showNotificationMessage(error.response.data.error);
+        } else if (error.response?.data?.status === false) {
+          const eData = error?.response?.data;
+          const handled = handleAppStateFlags(eData, dispatch);
+          if (!handled && typeof error.response?.data?.error === 'string') {
+            showNotificationMessage(error.response.data.error);
+          }
         }
       }
     } finally {
       setLoading(false);
     }
   };
+
   const handleSavePLU = async (plu: any) => {
     try {
       setLoading(true);
@@ -126,8 +149,12 @@ const DashboardController = () => {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
-        } else if (typeof error.response?.data?.error === 'string') {
-          showNotificationMessage(error.response.data.error);
+        } else if (error.response?.data?.status === false) {
+          const eData = error?.response?.data;
+          const handled = handleAppStateFlags(eData, dispatch);
+          if (!handled && typeof error.response?.data?.error === 'string') {
+            showNotificationMessage(error.response.data.error);
+          }
         }
       }
     } finally {
@@ -141,7 +168,6 @@ const DashboardController = () => {
       const response = await deleteApi(
         `${apiURLs.deletePlu + selectedPLU?.plu_id}/`,
       );
-      console.log('delete plu ====>>', response?.data);
       showNotificationMessage(response?.data?.message);
       if (response?.data?.status) {
         setDeleteModalVisible(false);
@@ -154,8 +180,12 @@ const DashboardController = () => {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
-        } else if (typeof error.response?.data?.error === 'string') {
-          showNotificationMessage(error.response.data.error);
+        } else if (error.response?.data?.status === false) {
+          const eData = error?.response?.data;
+          const handled = handleAppStateFlags(eData, dispatch);
+          if (!handled && typeof error.response?.data?.error === 'string') {
+            showNotificationMessage(error.response.data.error);
+          }
         }
       }
     } finally {
@@ -182,7 +212,6 @@ const DashboardController = () => {
   }
   return {
     userDetails,
-    SAMPLE_PLUS,
     openDeleteModal,
     setSelectedPLU,
     openEditModal,
@@ -201,6 +230,8 @@ const DashboardController = () => {
     loading,
     search,
     setSearch,
+    lastSync,
+    getposDetails,
   };
 };
 

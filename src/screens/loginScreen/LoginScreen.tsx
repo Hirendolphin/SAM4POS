@@ -34,51 +34,53 @@ export default function LoginScreen() {
   const isAndroid15 = Platform.OS === 'android' && Platform.Version >= 35;
 
   return (
-    <KeyboardAwareScrollView
-      bounces={false}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-      enableOnAndroid={isAndroid15 ? true : false}
-      style={{ flex: 1 }}
-      contentContainerStyle={{
-        flexGrow: 1,
-        justifyContent: 'center',
-      }}
-    >
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <Image source={Images.logo} style={{ alignSelf: 'center' }} />
-          <Text style={styles.subtitle}>SAM4POS PLU Manager</Text>
+    <View style={{ flex: 1 }}>
+      <KeyboardAwareScrollView
+        bounces={false}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid={isAndroid15 ? true : false}
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+        }}
+      >
+        <View style={styles.container}>
+          <View style={styles.card}>
+            <Image source={Images.logo} style={{ alignSelf: 'center' }} />
+            <Text style={styles.subtitle}>SAM4POS PLU Manager</Text>
 
-          <View style={styles.spacer16} />
-          <Input
-            placeholder="Dealer ID"
-            value={dealerId}
-            onChangeText={t => {
-              setDealerId(t);
-            }}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          {dealerError ? <Text style={styles.error}>{dealerError}</Text> : null}
+            <View style={styles.spacer16} />
+            <Input
+              placeholder="Dealer ID"
+              value={dealerId}
+              onChangeText={t => {
+                setDealerId(t);
+              }}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {dealerError ? (
+              <Text style={styles.error}>{dealerError}</Text>
+            ) : null}
 
-          <View style={styles.spacer12} />
-          <Input
-            placeholder="Password"
-            value={password}
-            onChangeText={t => {
-              setPassword(t);
-              if (passwordError) setPasswordError(null);
-            }}
-            autoCapitalize="none"
-            secureTextEntry
-            secureToggle
-          />
-          {passwordError ? (
-            <Text style={styles.error}>{passwordError}</Text>
-          ) : null}
+            <View style={styles.spacer12} />
+            <Input
+              placeholder="Password"
+              value={password}
+              onChangeText={t => {
+                setPassword(t);
+                if (passwordError) setPasswordError(null);
+              }}
+              autoCapitalize="none"
+              secureTextEntry
+              secureToggle
+            />
+            {passwordError ? (
+              <Text style={styles.error}>{passwordError}</Text>
+            ) : null}
 
-          {/* <View style={styles.rememberRow}>
+            {/* <View style={styles.rememberRow}>
           <Checkbox
             checked={remember}
             onChange={setRemember}
@@ -86,14 +88,15 @@ export default function LoginScreen() {
           />
         </View> */}
 
-          <PrimaryButton
-            title="Log in"
-            onPress={onLogin}
-            style={{ marginTop: moderateScale(15) }}
-          />
-          {loading && <ProgressModal ismodelVisible={loading} />}
+            <PrimaryButton
+              title="Log in"
+              onPress={onLogin}
+              style={{ marginTop: moderateScale(15) }}
+            />
+            {loading && <ProgressModal ismodelVisible={loading} />}
+          </View>
         </View>
-      </View>
-    </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView>
+    </View>
   );
 }

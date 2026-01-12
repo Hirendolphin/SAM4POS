@@ -113,7 +113,7 @@ export default StyleSheet.create({
   },
   couponRowWrap: {
     // flex: 1,
-    marginTop: verticalScale(10),
+    // marginTop: verticalScale(10),
   },
   couponLabel: {
     color: colors.text,
@@ -143,6 +143,25 @@ export default StyleSheet.create({
     includeFontPadding: false,
   },
   marginBottom: {
-    marginBottom: moderateScale(30),
+    marginBottom: moderateScale(10),
+  },
+  discountBox: {
+    backgroundColor: '#E7F9EF',
+    padding: moderateScale(12),
+    borderRadius: moderateScale(10),
+    marginTop: verticalScale(10),
+  },
+
+  discountText: {
+    color: colors.verified,
+    fontSize: moderateScale(14),
+    fontWeight: '600',
+  },
+
+  discountFinalPrice: {
+    color: colors.black,
+    fontSize: moderateScale(15),
+    fontWeight: '700',
+    marginTop: 4,
   },
 });

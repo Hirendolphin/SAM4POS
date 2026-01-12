@@ -1,5 +1,11 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { userForceLogout, userLogin, userLogout } from '../actions/authAction';
+import {
+  forceupdate,
+  maintenanceMode,
+  userForceLogout,
+  userLogin,
+  userLogout,
+} from '../actions/authAction';
 import { AuthStateType } from '../dataTypes';
 
 const initialState: AuthStateType = {
@@ -9,6 +15,8 @@ const initialState: AuthStateType = {
   forceLogout: {
     forcelogout: false,
   },
+  forceUpdate: false,
+  maintenanceMode: false,
 };
 
 const authReducer = createReducer(initialState, builder => {
@@ -31,6 +39,16 @@ const authReducer = createReducer(initialState, builder => {
         state.forceLogout = action.payload;
       }
     })
+    .addCase(forceupdate, (state, action) => {
+      // if (action?.payload) {
+      state.forceUpdate = action.payload;
+      // }
+    })
+    .addCase(maintenanceMode, (state, action) => {
+      // if (action?.payload) {
+      state.maintenanceMode = action.payload;
+      // }
+    })
     .addCase(userLogout, state => {
       state.fetching = false;
       state.loggedIn = false;
@@ -38,6 +56,8 @@ const authReducer = createReducer(initialState, builder => {
       state.forceLogout = {
         forcelogout: false,
       };
+      state.forceUpdate = false;
+      state.maintenanceMode = false;
     });
 });
 

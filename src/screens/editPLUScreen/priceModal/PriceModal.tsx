@@ -45,7 +45,7 @@ const PriceModal: FC<PriceModalProps> = ({
 }) => {
   const decimalRegex = /^(?:\d+(\.\d{0,2})?)?$/;
   const handlePriceChange = (text: string) => {
-    const value = text.replace(/,/g, ''); // if any commas come
+    const value = text.replace(/,/g, '');
     if (value === '' || decimalRegex.test(value)) {
       setPrice(value);
     }
@@ -57,10 +57,14 @@ const PriceModal: FC<PriceModalProps> = ({
           {/* HEADER */}
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
-              {isEdit ? 'EDIT' : 'ADD'} - {description} / {pluCode}
+              {isEdit ? 'EDIT' : 'ADD'} - {description} /{`\n`}
+              {pluCode}
             </Text>
 
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity
+              onPress={onClose}
+              style={{ alignSelf: 'flex-start' }}
+            >
               <Text style={styles.closeIcon}>✕</Text>
             </TouchableOpacity>
           </View>

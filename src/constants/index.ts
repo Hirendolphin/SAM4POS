@@ -6,6 +6,8 @@ const Routes = Object.freeze({
   privacyPolicy: 'PrivacyPolicy',
   termsConditions: 'TermsConditions',
   editPLUScreen: 'EditPLUScreen',
+  barcodeSettingScreen: 'BarcodeSettingScreen',
+  payPalWebViewScreen: 'PayPalWebViewScreen',
   scan: 'Scan',
   settings: 'Settings',
   mainTabs: 'MainTabs',

@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  Image,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { Icons } from '../../../assets/icons';
 import InputTextComponent from '../../../components/InputTextComponent';
 import { PrimaryButton } from '../../../components/PrimaryButton';
@@ -10,7 +18,8 @@ import { moderateScale } from '../../../theme/Metrics';
 import { FontFamily } from '../../../assets/fonts';
 import { useAppSelector } from '../../../redux/hooks';
 import { showNotificationMessage } from '../../utils/helperFunction';
-
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+const isAndroid15 = Platform.OS === 'android' && Platform.Version >= 35;
 type PLUData = {
   pluCode: string;
   description: string;
@@ -179,9 +188,12 @@ export function AddPLUModal({ visible, onClose, onSave, initialData }: Props) {
           </View>
 
           {/* Scrollable Form */}
-          <ScrollView
+          <KeyboardAwareScrollView
             style={styles.scrollView}
+            bounces={false}
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
           >
             <View style={styles.spacer} />
             <InputTextComponent
@@ -267,7 +279,7 @@ export function AddPLUModal({ visible, onClose, onSave, initialData }: Props) {
             />
 
             <View style={{ height: 20 }} />
-          </ScrollView>
+          </KeyboardAwareScrollView>
 
           <PrimaryButton title={'Done'} onPress={handleDone} />
         </View>

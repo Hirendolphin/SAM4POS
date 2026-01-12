@@ -15,7 +15,7 @@ export default StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: moderateScale(10),
     width: '100%',
-    maxHeight: '90%',
+    maxHeight: '100%',
     overflow: 'hidden',
     padding: moderateScale(14),
   },
@@ -43,7 +43,7 @@ export default StyleSheet.create({
     width: moderateScale(25),
   },
   scrollView: {
-    maxHeight: moderateScale(500),
+    maxHeight: moderateScale(600),
   },
   spacer: {
     height: moderateScale(12),

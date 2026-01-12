@@ -1,6 +1,11 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { userLogout } from '../actions/authAction';
-import { getPLU, getPriceLevel, getStatusGroup } from '../actions/pluAction';
+import {
+  getPLU,
+  getPriceLevel,
+  getStatusGroup,
+  setLastSync,
+} from '../actions/pluAction';
 import { PLUReducerState } from '../dataTypes';
 
 const initialState: PLUReducerState = {
@@ -16,6 +21,7 @@ const initialState: PLUReducerState = {
   fetching: false,
   statusGroup: [],
   priceLevel: [],
+  lastSync: null,
 };
 
 const pluReducer = createReducer(initialState, builder => {
@@ -95,6 +101,9 @@ const pluReducer = createReducer(initialState, builder => {
     .addCase(getPriceLevel.rejected, state => {
       state.fetching = false;
     })
+    .addCase(setLastSync, (state, action) => {
+      state.lastSync = action.payload;
+    })
     .addCase(userLogout, state => {
       state.fetching = false;
       state.pluList = {
@@ -106,6 +115,7 @@ const pluReducer = createReducer(initialState, builder => {
       state.currentPage = 1;
       state.statusGroup = [];
       state.priceLevel = [];
+      state.lastSync = null;
     });
 });
 

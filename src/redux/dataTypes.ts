@@ -7,6 +7,16 @@ export type CommanResponseType = {
   message?: string;
 };
 
+export type BarcodeRuleType = {
+  transmitLeadingDigit: boolean;
+  transmitCheckDigit: boolean;
+};
+
+export type BarcodeSettingsStateType = {
+  'upc-a': BarcodeRuleType;
+  'upc-e': BarcodeRuleType;
+};
+
 export type Plan = {
   id: number;
   created_at: string;
@@ -52,6 +62,8 @@ export type AuthStateType = {
   forceLogout: {
     forcelogout: boolean;
   };
+  forceUpdate?: boolean;
+  maintenanceMode?: boolean;
 };
 
 //new
@@ -113,6 +125,7 @@ export type PLUReducerState = {
   loadingMore: boolean;
   statusGroup: StatusGroup[];
   priceLevel: StatusGroup[];
+  lastSync: string | null;
 };
 
 export type StatusGroup = {

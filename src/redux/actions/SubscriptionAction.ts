@@ -5,7 +5,10 @@ import { apiURLs, get, post } from '../../services/api';
 import axios from 'axios';
 import { PlanResponse } from '../dataTypes';
 import { userForceLogout } from './authAction';
-import { showNotificationMessage } from '../../screens/utils/helperFunction';
+import {
+  handleAppStateFlags,
+  showNotificationMessage,
+} from '../../screens/utils/helperFunction';
 
 export const getSubscription = createAsyncThunk<
   PlanResponse,
@@ -19,13 +22,12 @@ export const getSubscription = createAsyncThunk<
     if (axios.isAxiosError(error)) {
       if (error?.response?.status === 401 || error?.response?.status === 403) {
         dispatch(userForceLogout({ forcelogout: true }));
-      } else if (error?.response?.status === 429) {
-      } else if (typeof error?.response?.data?.error === 'string') {
-        // showNotificationMessage(error?.response?.data?.error);
-      } else if (error?.response?.status === 404) {
-        // showNotificationMessage(error?.response?.data?.error || '');
-      } else {
-        // showNotificationMessage('An unknown error occurred');
+      } else if (error.response?.data?.status === false) {
+        const eData = error?.response?.data;
+        const handled = handleAppStateFlags(eData, dispatch);
+        if (!handled && typeof error.response?.data?.error === 'string') {
+          showNotificationMessage(error.response.data.error);
+        }
       }
       return rejectWithValue(error?.response?.data ?? {});
     } else {
@@ -47,21 +49,18 @@ export const postCouponValidate = createAsyncThunk<
     const form = new FormData();
     form.append('coupon_code', arg?.coupon_code);
     const response = await post(apiURLs.couponValidate, arg);
-    showNotificationMessage(response?.data?.message);
-
+    // showNotificationMessage(response?.data?.message);
     return response?.data;
   } catch (error: any) {
-    console.log('error.response ==>> ', error.response);
-
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         dispatch(userForceLogout({ forcelogout: true }));
-      } else if (typeof error?.response?.data?.message === 'string') {
-        showNotificationMessage(error?.response?.data?.message);
-      } else if (error?.response?.status === 404) {
-        // showNotificationMessage(error?.response?.data?.error || '');
-      } else {
-        // showNotificationMessage('An unknown error occurred');
+      } else if (error.response?.data?.status === false) {
+        const eData = error?.response?.data;
+        const handled = handleAppStateFlags(eData, dispatch);
+        if (!handled && typeof error.response?.data?.error === 'string') {
+          showNotificationMessage(error.response.data.error);
+        }
       }
       return rejectWithValue(error?.response?.data ?? {});
     } else {

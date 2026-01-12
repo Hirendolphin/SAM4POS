@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import {
   FlatList,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -66,8 +68,8 @@ function PlanCard({
         </View>
         <Text style={styles.planTitle}>{item?.name}</Text>
         {/* <View style={styles.pill}>
-          <Text style={styles.pillText}>Most Popular</Text>
-        </View> */}
+            <Text style={styles.pillText}>Most Popular</Text>
+          </View> */}
       </View>
       <View style={styles.bullets}>
         {convertToArray(item?.features).map(item => (
@@ -91,65 +93,93 @@ export default function SubscriptionScreen() {
     setSelectedPlanId,
     handleSelectPlan,
     handleApplyCoupon,
+    couponMessage,
+    discount,
+    handleSubscription,
   } = SubscriptionController();
 
   return (
-    <View style={styles.container}>
-      <HeaderComponent
-        title="Subscription"
-        onPressBack={() => navigation.dispatch(CommonActions.goBack())}
-      />
-
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <FlatList
-          data={subscriptions}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <PlanCard
-              item={item}
-              isSelected={item.id === selectedPlanId}
-              onSelect={() => handleSelectPlan(item.id)}
-            />
-          )}
-          scrollEnabled={false}
-          contentContainerStyle={{ gap: 15 }}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+    >
+      <View style={styles.container}>
+        <HeaderComponent
+          title="Subscription"
+          onPressBack={() => navigation.dispatch(CommonActions.goBack())}
         />
-      </ScrollView>
-      <View style={styles.couponRowWrap}>
-        <View style={styles.couponRow}>
-          <InputTextComponent
-            label="Coupon Input:"
-            placeholdertext="Enter Coupon Code"
-            mainStyle={{ flex: 1 }}
-            inputProps={{ value: couponCode, onChangeText: setCouponCode }}
+
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <FlatList
+            data={subscriptions}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+              <PlanCard
+                item={item}
+                isSelected={item.id === selectedPlanId}
+                onSelect={() => handleSelectPlan(item.id)}
+              />
+            )}
+            scrollEnabled={false}
+            contentContainerStyle={{ gap: 15 }}
           />
-          <PrimaryButton
-            title="Apply"
-            onPress={handleApplyCoupon}
-            style={styles.applyBtn}
-          />
+        </ScrollView>
+        <View style={styles.couponRowWrap}>
+          <View style={styles.couponRow}>
+            <InputTextComponent
+              label="Coupon Input:"
+              placeholdertext="Enter Coupon Code"
+              mainStyle={{ flex: 1 }}
+              inputProps={{ value: couponCode, onChangeText: setCouponCode }}
+            />
+            <PrimaryButton
+              title="Apply"
+              onPress={handleApplyCoupon}
+              style={styles.applyBtn}
+            />
+          </View>
         </View>
-      </View>
-      {/* {discountInfo && (
-          <Text style={{ color: colors.success, marginTop: 6 }}>
-            {discountInfo?.discount_text || 'Discount applied!'}
+        {couponMessage && (
+          <Text
+            style={{
+              color:
+                couponMessage.type === 'success' ? colors.verified : colors.red,
+              marginTop: 6,
+              fontSize: moderateScale(13),
+              fontWeight: '500',
+            }}
+          >
+            {couponMessage.text}
           </Text>
-        )} */}
-      <PrimaryButton
-        title="Subscribe Now"
-        onPress={() =>
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: Routes.mainTabs,
-            }),
-          )
-        }
-        style={styles.subscribeBtn}
-      />
-    </View>
+        )}
+        {discount && (
+          <View style={styles.discountBox}>
+            <Text style={styles.discountText}>
+              Discount applied: -${discount.amount}
+            </Text>
+            <Text style={styles.discountFinalPrice}>
+              Final Price: ${discount.final_price}
+            </Text>
+          </View>
+        )}
+        <PrimaryButton
+          title="Subscribe Now"
+          onPress={() =>
+            // navigation.dispatch(
+            //   CommonActions.navigate({
+            //     name: Routes.mainTabs,
+            //   }),
+            // )
+            handleSubscription()
+          }
+          style={styles.subscribeBtn}
+        />
+      </View>
+    </KeyboardAvoidingView>
   );
 }

@@ -1,1 +1,1 @@
-export const BASE_URL = 'https://sampos.demoproject.info/api';
+export const BASE_URL = 'https://manageyourpos.com/api/v1';

@@ -1,39 +1,13 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import { createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { showNotificationMessage } from '../../screens/utils/helperFunction';
+import {
+  handleAppStateFlags,
+  showNotificationMessage,
+} from '../../screens/utils/helperFunction';
 import { apiURLs, get } from '../../services/api';
 import * as types from '../actionTypes';
 import { RootState } from '../store';
 import { userForceLogout } from './authAction';
-
-// export const getPLU = createAsyncThunk<
-//   any,
-//   { page: number; limit: number; isLoadMore?: boolean; search?: string },
-//   { state: RootState }
-// >(types.GET_PLU, async (requestData, { rejectWithValue, dispatch }) => {
-//   try {
-//     const response = await get(
-//       `${apiURLs.pluList}?search=""&page=${requestData.page}&page_size=${requestData.limit}`,
-//     );
-
-//     return {
-//       ...response.data,
-//       isLoadMore: requestData.isLoadMore || false,
-//       currentPage: requestData.page,
-//     };
-//   } catch (error: any) {
-//     if (axios.isAxiosError(error)) {
-//       if (error.response?.status === 401 || error.response?.status === 403) {
-//         dispatch(userForceLogout({ forcelogout: true }));
-//       } else if (typeof error.response?.data?.error === 'string') {
-//         showNotificationMessage(error.response.data.error);
-//       }
-//       return rejectWithValue(error.response?.data ?? {});
-//     } else {
-//       return rejectWithValue({ message: error.message ?? '' });
-//     }
-//   }
-// });
 
 export const getPLU = createAsyncThunk<
   any,
@@ -58,8 +32,12 @@ export const getPLU = createAsyncThunk<
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         dispatch(userForceLogout({ forcelogout: true }));
-      } else if (typeof error.response?.data?.error === 'string') {
-        showNotificationMessage(error.response.data.error);
+      } else if (error.response?.data?.status === false) {
+        const eData = error?.response?.data;
+        const handled = handleAppStateFlags(eData, dispatch);
+        if (!handled && typeof error.response?.data?.error === 'string') {
+          showNotificationMessage(error.response.data.error);
+        }
       }
       return rejectWithValue(error.response?.data ?? {});
     } else {
@@ -73,14 +51,17 @@ export const getStatusGroup = createAsyncThunk<any, void, { state: RootState }>(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await get(`${apiURLs.statusGroupList}`);
-      console.log('getStatusGroup ==> ', response?.data);
       return response?.data;
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
-        } else if (typeof error.response?.data?.error === 'string') {
-          showNotificationMessage(error.response.data.error);
+        } else if (error.response?.data?.status === false) {
+          const eData = error?.response?.data;
+          const handled = handleAppStateFlags(eData, dispatch);
+          if (!handled && typeof error.response?.data?.error === 'string') {
+            showNotificationMessage(error.response.data.error);
+          }
         }
         return rejectWithValue(error.response?.data ?? {});
       } else {
@@ -95,14 +76,17 @@ export const getPriceLevel = createAsyncThunk<any, void, { state: RootState }>(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await get(`${apiURLs.priceLevel}`);
-      console.log('getPriceLevel ==> ', response?.data);
       return response?.data;
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
-        } else if (typeof error.response?.data?.error === 'string') {
-          showNotificationMessage(error.response.data.error);
+        } else if (error.response?.data?.status === false) {
+          const eData = error?.response?.data;
+          const handled = handleAppStateFlags(eData, dispatch);
+          if (!handled && typeof error.response?.data?.error === 'string') {
+            showNotificationMessage(error.response.data.error);
+          }
         }
         return rejectWithValue(error.response?.data ?? {});
       } else {
@@ -111,3 +95,5 @@ export const getPriceLevel = createAsyncThunk<any, void, { state: RootState }>(
     }
   },
 );
+
+export const setLastSync = createAction<string>(types.LAST_SYNC);
