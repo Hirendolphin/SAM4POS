@@ -12,6 +12,8 @@ import {
 type Loginarg = {
   dealer_id: string;
   password: string;
+  client_ip?: string;
+  client_port?: string;
 };
 
 export const userLogin = createAsyncThunk<
@@ -23,12 +25,19 @@ export const userLogin = createAsyncThunk<
     const form = new FormData();
     form.append('dealer_id', arg.dealer_id);
     form.append('password', arg?.password);
+    console.log('arg ===>> ', arg);
+    if (arg?.client_ip?.trim() && arg?.client_port?.trim()) {
+      console.log('arg 1111===>> ', arg);
+      form.append('client_ip', arg?.client_ip?.trim());
+      form.append('client_port', arg?.client_port?.trim());
+    }
     const response = await post(apiURLs.login, form);
     showNotificationMessage(response?.data?.message);
     console.log('response ==>>> ', response);
     return response?.data;
   } catch (error: any) {
     console.log('error ===>> ', error);
+    dispatch(userLogout());
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         dispatch(userForceLogout({ forcelogout: true }));

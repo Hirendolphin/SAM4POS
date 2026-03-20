@@ -11,6 +11,7 @@ import { colors } from '../../theme/colors';
 import styles from './SettingsScreenStyle';
 import SettingController from './SettingController';
 import DeviceInfo from 'react-native-device-info';
+import { formatSubscriptionDate } from '../../screens/utils/helperFunction';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -22,6 +23,7 @@ export default function SettingsScreen() {
     navigateToPrivacyPolicy,
     userDetails,
     navigateToBarcodeSetting,
+    activeSubscriptions,
   } = SettingController();
 
   return (
@@ -39,23 +41,23 @@ export default function SettingsScreen() {
         </View>
 
         {/* Subscription Plan Card */}
-        {userDetails?.data?.subscription_status == 'Active' && (
+        {activeSubscriptions?.status == 'active' && (
           <View style={styles.freeCard}>
             <View style={styles.row}>
               <View style={styles.rowFlex}>
                 <Image source={Icons.premium} style={styles.iconSmall} />
-                <Text style={styles.freeText}>Standard Plan</Text>
+                <Text style={styles.freeText}>{activeSubscriptions?.subscription_details?.name}</Text>
               </View>
             </View>
             <View style={styles.divider} />
             <Text style={styles.freeDesc}>
-              Standard Plan – Active until 22 Oct 2025
+              {activeSubscriptions?.subscription_details?.name} – Active until {formatSubscriptionDate(activeSubscriptions?.end_date)}
             </Text>
-            <PrimaryButton
+            {/* <PrimaryButton
               title="Manage Subscription"
-              onPress={() => {}}
+              onPress={() => { navigateToSubscription() }}
               style={styles.manageBtn}
-            />
+            /> */}
           </View>
         )}
 

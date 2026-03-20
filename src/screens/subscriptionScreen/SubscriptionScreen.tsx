@@ -17,7 +17,9 @@ import { PrimaryButton } from '../../components/PrimaryButton';
 import { Routes } from '../../constants';
 import styles from './SubscriptionScreenStyle';
 import SubscriptionController from './SubscriptionController';
+import PaymentMethodModal from '../../components/PaymentMethodModal';
 import { Plan } from '../../redux/dataTypes';
+import ProgressModal from '../../components/ProgressModal';
 import { moderateScale } from '../../theme/Metrics';
 import { colors } from '../../theme/colors';
 
@@ -95,7 +97,14 @@ export default function SubscriptionScreen() {
     handleApplyCoupon,
     couponMessage,
     discount,
-    handleSubscription,
+    isPaymentModalVisible,
+    handleSubscriptionPress,
+    handleClosePaymentModal,
+    selectedPaymentMethod,
+    handleSelectPaymentMethod,
+    processSubscription,
+    paymentMethods,
+    isSubscribing,
   } = SubscriptionController();
 
   return (
@@ -143,41 +152,48 @@ export default function SubscriptionScreen() {
               style={styles.applyBtn}
             />
           </View>
+          {couponMessage && (
+            <Text
+              style={{
+                color:
+                  couponMessage.type === 'success' ? colors.verified : colors.red,
+                marginTop: moderateScale(6),
+                fontSize: moderateScale(13),
+                fontWeight: '500',
+              }}
+            >
+              {couponMessage.text}
+            </Text>
+          )}
         </View>
-        {couponMessage && (
-          <Text
-            style={{
-              color:
-                couponMessage.type === 'success' ? colors.verified : colors.red,
-              marginTop: 6,
-              fontSize: moderateScale(13),
-              fontWeight: '500',
-            }}
-          >
-            {couponMessage.text}
-          </Text>
-        )}
         {discount && (
           <View style={styles.discountBox}>
             <Text style={styles.discountText}>
-              Discount applied: -${discount.amount}
+              Discount applied:{' '}
+              {discount.type === 'percentage'
+                ? `${discount.amount}%`
+                : `-$${discount.amount}`}
             </Text>
             <Text style={styles.discountFinalPrice}>
-              Final Price: ${discount.final_price}
+              Final Price: ${discount.finalPrice}
             </Text>
           </View>
         )}
         <PrimaryButton
           title="Subscribe Now"
-          onPress={() =>
-            // navigation.dispatch(
-            //   CommonActions.navigate({
-            //     name: Routes.mainTabs,
-            //   }),
-            // )
-            handleSubscription()
-          }
+          onPress={handleSubscriptionPress}
           style={styles.subscribeBtn}
+        />
+        <PaymentMethodModal
+          visible={isPaymentModalVisible}
+          onClose={handleClosePaymentModal}
+          paymentMethods={paymentMethods}
+          onSelect={handleSelectPaymentMethod}
+          selectedMethod={selectedPaymentMethod}
+          onConfirm={processSubscription}
+        />
+        <ProgressModal
+          ismodelVisible={isSubscribing}
         />
       </View>
     </KeyboardAvoidingView>

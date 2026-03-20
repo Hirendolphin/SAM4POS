@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
   Platform,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { Images } from '../../assets/images';
-import { Checkbox } from '../../components/Checkbox';
+// import { Checkbox } from '../../components/Checkbox';
 import { Input } from '../../components/Input';
 import { PrimaryButton } from '../../components/PrimaryButton';
 import LoginController from './LoginController';
@@ -15,6 +16,8 @@ import styles from './LoginScreenStyle';
 import ProgressModal from '../../components/ProgressModal';
 import { moderateScale } from '../../theme/Metrics';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import ClientInfoModal from '../../components/ClientInfoModal';
+import { colors } from '../../theme/colors';
 
 export default function LoginScreen() {
   const {
@@ -30,6 +33,9 @@ export default function LoginScreen() {
     setRemember,
     onLogin,
     loading,
+    clientModalVisible,
+    setClientModalVisible,
+    onSubmitClientInfo
   } = LoginController();
   const isAndroid15 = Platform.OS === 'android' && Platform.Version >= 35;
 
@@ -94,6 +100,12 @@ export default function LoginScreen() {
               style={{ marginTop: moderateScale(15) }}
             />
             {loading && <ProgressModal ismodelVisible={loading} />}
+
+            <ClientInfoModal
+              visible={clientModalVisible}
+              onClose={() => setClientModalVisible(false)}
+              onSubmit={onSubmitClientInfo}
+            />
           </View>
         </View>
       </KeyboardAwareScrollView>

@@ -6,8 +6,10 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useState } from 'react';
 import { RootStackParamList } from '../../navigation/AppNavigator';
+import { PaymentMethod } from '../../redux/dataTypes';
 import {
   getSubscription,
+  getPaymentMethods,
   postCouponValidate,
 } from '../../redux/actions/SubscriptionAction';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -18,7 +20,6 @@ import {
 import { apiURLs, post } from '../../services/api';
 import axios from 'axios';
 import { userForceLogout } from '../../redux/actions/authAction';
-import { Linking } from 'react-native';
 import { Routes } from '../../constants';
 
 const SubscriptionController = () => {
@@ -26,16 +27,29 @@ const SubscriptionController = () => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
   const [couponCode, setCouponCode] = useState('');
-  const { subscriptions }: any = useAppSelector(state => ({
+  const { subscriptions, paymentMethods }: any = useAppSelector(state => ({
     subscriptions: state?.subscription?.plans || [],
+    paymentMethods: state?.subscription?.paymentMethods || [],
   }));
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
     subscriptions[0]?.id || null,
   );
 
-  const [couponMessage, setCouponMessage] = useState(null);
+  const [couponMessage, setCouponMessage] = useState<{
+    type: string;
+    text: string;
+  } | null>(null);
   const [isApplying, setIsApplying] = useState(false);
-  const [discount, setDiscount] = useState(null);
+  const [discount, setDiscount] = useState<{
+    amount: number;
+    type: string;
+    finalPrice: number | string;
+  } | null>(null);
+
+  const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<PaymentMethod | null>(null);
+  const [isSubscribing, setIsSubscribing] = useState(false);
 
   const handleSelectPlan = (id: string) => {
     setSelectedPlanId(id);
@@ -49,6 +63,7 @@ const SubscriptionController = () => {
 
   const getSubscriptionPlanApi = async () => {
     dispatch(getSubscription()).unwrap();
+    dispatch(getPaymentMethods());
   };
 
   const handleApplyCoupon = async () => {
@@ -69,7 +84,7 @@ const SubscriptionController = () => {
           coupon_code: couponCode.trim(),
         }),
       ).unwrap();
-      const payload = response?.payload;
+      const payload = response;
       console.log('response ==>>> ', payload);
       if (payload?.status) {
         const discountValue = payload?.data?.discount ?? 0;
@@ -100,34 +115,69 @@ const SubscriptionController = () => {
         // API returned status false
         setCouponMessage({
           type: 'error',
-          text: payload?.message || 'Invalid coupon code.',
+          text: payload?.error || 'Invalid coupon code.',
         });
         setDiscount(null);
       }
-    } catch (error) {
+    } catch (error: any) {
       setCouponMessage({
         type: 'error',
-        text: 'Something went wrong. Try again.',
+        text: error?.error || 'Something went wrong. Try again.',
       });
+      setDiscount(null);
     } finally {
       setIsApplying(false);
     }
   };
 
-  const handleSubscription = async () => {
+  const handleSubscriptionPress = () => {
+    if (!selectedPlanId) {
+      showNotificationMessage('Please select a plan.');
+      return;
+    }
+    setIsPaymentModalVisible(true);
+  };
+
+  const handleClosePaymentModal = () => {
+    setSelectedPaymentMethod(null);
+    setIsPaymentModalVisible(false);
+  };
+
+  const handleSelectPaymentMethod = (method: PaymentMethod) => {
+    setSelectedPaymentMethod(method);
+  };
+
+  const processSubscription = async () => {
+    if (!selectedPaymentMethod) {
+      showNotificationMessage('Please select a payment method.');
+      return;
+    }
+    setIsPaymentModalVisible(false);
+    setTimeout(() => {
+      setIsSubscribing(true);
+    }, 500);
+
     try {
       const form = new FormData();
       form.append('subscription', selectedPlanId);
+      if (discount) {
+        form.append('coupon_code', couponCode);
+      }
+      form.append('payment_method', selectedPaymentMethod.provider_code);
       const response = await post(apiURLs.transaction, form);
       console.log('response ==>>> ', response?.data);
       const approvalUrl = response?.data?.data?.approval_url;
       if (approvalUrl) {
         // Linking.openURL(approvalUrl);
+        setTimeout(() => {
+          setIsSubscribing(false);
+        }, 500);
         navigation.dispatch(
           CommonActions.navigate(Routes.payPalWebViewScreen, {
             approvalUrl: approvalUrl,
-            transaction_id: response?.data?.data?.transaction_id,
-            paypal_order_id: response?.data?.data?.paypal_order_id,
+            transaction_id: response?.data?.data?.transaction_trn,
+            paypal_order_id: response?.data?.data?.payment_id,
+            payment_method: selectedPaymentMethod.provider_code,
             returnUrl: 'https://example.com/paypal/success',
             cancelUrl: 'https://example.com/paypal/cancel',
             backendBase: 'http://192.168.1.100:5000',
@@ -135,6 +185,10 @@ const SubscriptionController = () => {
         );
       }
     } catch (error) {
+      console.log("error.response ===> ", error.response);
+      setTimeout(() => {
+        setIsSubscribing(false);
+      }, 500);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
@@ -146,6 +200,8 @@ const SubscriptionController = () => {
           }
         }
       }
+    } finally {
+      setIsSubscribing(false);
     }
   };
 
@@ -154,13 +210,22 @@ const SubscriptionController = () => {
     couponCode,
     setCouponCode,
     subscriptions,
+    paymentMethods,
     selectedPlanId,
     setSelectedPlanId,
     handleSelectPlan,
     handleApplyCoupon,
     couponMessage,
     discount,
-    handleSubscription,
+
+    // Payment Modal Props
+    isPaymentModalVisible,
+    handleSubscriptionPress,
+    handleClosePaymentModal,
+    selectedPaymentMethod,
+    handleSelectPaymentMethod,
+    processSubscription,
+    isSubscribing,
   };
 };
 

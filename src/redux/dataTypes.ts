@@ -37,9 +37,39 @@ export type PlanResponse = {
   data: Plan[];
 };
 
+export type PaymentMethod = {
+  id: string | number;
+  provider_code: string;
+  name: string;
+  is_active: boolean;
+};
+
 export type SubscriptionReducerState = {
   plans: Plan[];
   fetching: boolean;
+  paymentMethods: PaymentMethod[];
+  activeSubscription?: ActiveSubscriptionType | null;
+};
+
+export type ActiveSubscriptionType = {
+  id: number;
+  subscription_details: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    name: string;
+    features: string;
+    amount: string;
+    duration: number;
+    status: string;
+  };
+  start_date: string;
+  end_date: string;
+  successful_payment_date: string;
+  status: string;
+  created_at: string;
+  user: number;
+  subscription: number;
 };
 
 export type LoginResultType = {
@@ -52,6 +82,7 @@ export type LoginResultType = {
     status: string;
     subscription_plan: string;
   };
+  is_new_customer?: boolean;
   token?: string;
 } & CommanResponseType;
 

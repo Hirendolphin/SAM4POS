@@ -143,27 +143,30 @@ export default function PaymentScreen() {
               style={styles.applyBtn}
             />
           </View>
+          {couponMessage && (
+            <Text
+              style={{
+                color:
+                  couponMessage.type === 'success' ? colors.verified : colors.red,
+                marginTop: moderateScale(6),
+                fontSize: moderateScale(13),
+                fontWeight: '500',
+              }}
+            >
+              {couponMessage.text}
+            </Text>
+          )}
         </View>
-        {couponMessage && (
-          <Text
-            style={{
-              color:
-                couponMessage.type === 'success' ? colors.verified : colors.red,
-              marginTop: 6,
-              fontSize: moderateScale(13),
-              fontWeight: '500',
-            }}
-          >
-            {couponMessage.text}
-          </Text>
-        )}
         {discount && (
           <View style={styles.discountBox}>
             <Text style={styles.discountText}>
-              Discount applied: -${discount.amount}
+              Discount applied:{' '}
+              {discount.type === 'percentage'
+                ? `${discount.amount}%`
+                : `-$${discount.amount}`}
             </Text>
             <Text style={styles.discountFinalPrice}>
-              Final Price: ${discount.final_price}
+              Final Price: ${discount.finalPrice}
             </Text>
           </View>
         )}

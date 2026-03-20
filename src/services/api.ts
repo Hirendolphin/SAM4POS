@@ -108,6 +108,8 @@ type ApiUrls = {
   appVersionCheck: string;
   transaction: string;
   capture: string;
+  paymentMethods: string;
+  activeSubscription: string;
 };
 
 const apiURLs: ApiUrls = {
@@ -132,6 +134,8 @@ const apiURLs: ApiUrls = {
   appVersionCheck: 'check-version/',
   transaction: 'transaction/',
   capture: 'transaction/capture/',
+  paymentMethods: 'transaction/payment-methods/',
+  activeSubscription: 'subscription/active/',
 };
 
 export {

@@ -20,6 +20,7 @@ import {
   handleAppStateFlags,
   showNotificationMessage,
 } from '../utils/helperFunction';
+import { getActiveSubscription } from '../../redux/actions/SubscriptionAction';
 
 const DashboardController = () => {
   const dispatch = useAppDispatch();
@@ -37,6 +38,16 @@ const DashboardController = () => {
       setSearch('');
     }, []),
   );
+
+  useFocusEffect(
+    useCallback(() => {
+      activeSubscription();
+    }, [])
+  );
+
+  const activeSubscription = async () => {
+    await dispatch(getActiveSubscription()).unwrap();
+  }
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -90,6 +101,7 @@ const DashboardController = () => {
       setLoading(true);
       setSearch('');
       const response = await get(`${apiURLs?.posDetails}`);
+      console.log('response =>> ', response);
       if (response?.status) {
         const now = new Date();
 
@@ -118,6 +130,7 @@ const DashboardController = () => {
         }, 600);
       }
     } catch (error: any) {
+      console.log('error =>> ', error?.response);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));

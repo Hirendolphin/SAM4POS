@@ -33,6 +33,7 @@ export default function PayPalWebViewScreen({ route }) {
     backendBase,
     transaction_id,
     paypal_order_id,
+    payment_method,
   } = route?.params || {};
 
   const webviewRef = useRef(null);
@@ -49,15 +50,18 @@ export default function PayPalWebViewScreen({ route }) {
   const onNavigationStateChange = navState => {
     const { url } = navState;
     if (!url) return;
+    console.log('url ===>>> ', url);
+
 
     if (url.includes('success')) {
-      if (!loadingCapture) {
-        captureOrder(transaction_id, paypal_order_id);
-      }
+      // if (!loadingCapture) {
+      //   captureOrder(transaction_id, paypal_order_id);
+      // }
+
     } else if (url.includes('cancel')) {
-      setApproval(null);
-      Alert.alert('Payment cancelled', 'User cancelled the payment');
-      navigation.goBack();
+      // setApproval(null);
+      // Alert.alert('Payment cancelled', 'User cancelled the payment');
+      // navigation.goBack();
     }
   };
 
@@ -65,13 +69,11 @@ export default function PayPalWebViewScreen({ route }) {
     setLoadingCapture(true);
     try {
       const form = new FormData();
-      form.append('transaction_id', orderId);
-      form.append('paypal_order_id', paypalId);
+      form.append('transaction_trn', orderId);
+      form.append('payment_id', paypalId);
+      form.append('payment_method', payment_method);
       const response = await post(apiURLs.capture, form);
-      console.log('response ===>>> ', response);
     } catch (err) {
-      console.error('captureOrder error', err.response);
-      Alert.alert('Network error', String(err));
       navigation.goBack();
     } finally {
       setLoadingCapture(false);
@@ -96,32 +98,32 @@ export default function PayPalWebViewScreen({ route }) {
         onPressBack={() => navigation.dispatch(CommonActions.goBack())}
       />
 
-      {approval ? (
-        <WebView
-          ref={webviewRef}
-          source={{ uri: approval }}
-          onNavigationStateChange={onNavigationStateChange}
-          startInLoadingState
-          javaScriptEnabled
-          domStorageEnabled
-          originWhitelist={['*']}
-          style={styles.webview}
-        />
-      ) : (
-        <View style={styles.placeholder}>
-          <Text style={{ marginBottom: 8 }}>Processing payment...</Text>
-          <ActivityIndicator size="large" />
-        </View>
-      )}
+      {/* {approval ? ( */}
+      <WebView
+        ref={webviewRef}
+        source={{ uri: approval }}
+        onNavigationStateChange={onNavigationStateChange}
+        startInLoadingState
+        javaScriptEnabled
+        domStorageEnabled
+        originWhitelist={['*']}
+        style={styles.webview}
+      />
+      {/* // ) : (
+      //   <View style={styles.placeholder}>
+      //     <Text style={{ marginBottom: 8 }}>Processing payment...</Text>
+      //     <ActivityIndicator size="large" />
+      //   </View>
+      // )} */}
 
-      {loadingCapture && (
+      {/* {loadingCapture && (
         <View style={styles.loadingOverlay} pointerEvents="none">
           <View style={styles.loadingBox}>
             <ActivityIndicator size="large" />
             <Text style={{ marginTop: 12 }}>Finalizing payment...</Text>
           </View>
         </View>
-      )}
+      )} */}
     </SafeAreaView>
   );
 }

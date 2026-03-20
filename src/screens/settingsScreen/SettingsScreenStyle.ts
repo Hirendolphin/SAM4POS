@@ -74,6 +74,7 @@ export default StyleSheet.create({
     fontSize: moderateScale(14),
     marginLeft: moderateScale(10),
     includeFontPadding: false,
+    textTransform: 'capitalize',
   },
   divider: {
     height: 1,
@@ -86,6 +87,7 @@ export default StyleSheet.create({
     fontWeight: '600',
     fontFamily: FontFamily.semiBold,
     includeFontPadding: false,
+    textTransform: 'capitalize',
   },
   manageBtn: {
     marginTop: moderateScale(20),

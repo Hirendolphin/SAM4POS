@@ -28,6 +28,9 @@ const authReducer = createReducer(initialState, builder => {
       if (action?.payload.status == true) {
         state.loggedIn = true;
         state.userLoginDetails = action?.payload;
+      } else if (action?.payload.status == false) {
+        state.loggedIn = false;
+        state.userLoginDetails = action?.payload;
       }
       state.fetching = false;
     })

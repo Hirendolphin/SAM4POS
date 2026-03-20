@@ -151,10 +151,10 @@ const EditPLUController = () => {
   // for EDIT – show unused + current item's level
   const levelListForEdit = editingItem
     ? priceLevels.filter(
-        l =>
-          l.value === editingItem.id_price_level ||
-          !usedLevels.includes(l.value),
-      )
+      l =>
+        l.value === editingItem.id_price_level ||
+        !usedLevels.includes(l.value),
+    )
     : priceLevels;
 
   const addPrice = () => {
@@ -255,6 +255,8 @@ const EditPLUController = () => {
       id_group3: groupLinks.link3 || 0,
     };
 
+    console.log("payload ===> ", payload);
+
     setIsLoading(true);
     try {
       const response = await post(apiURLs.updatePlu, payload);
@@ -266,6 +268,8 @@ const EditPLUController = () => {
         }, 500);
       }
     } catch (error) {
+      console.log("update plu==?>", error.response);
+
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));

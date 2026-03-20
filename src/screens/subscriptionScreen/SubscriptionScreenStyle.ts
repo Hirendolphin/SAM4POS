@@ -142,7 +142,9 @@ export default StyleSheet.create({
     backgroundColor: '#E7F9EF',
     padding: moderateScale(12),
     borderRadius: moderateScale(10),
-    marginTop: verticalScale(10),
+    // marginTop: verticalScale(10),
+    marginHorizontal: moderateScale(20),
+    marginBottom: verticalScale(10),
   },
 
   discountText: {

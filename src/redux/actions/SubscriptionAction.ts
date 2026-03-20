@@ -44,14 +44,17 @@ export const postCouponValidate = createAsyncThunk<
   any,
   couponarg,
   { state: RootState }
->(types.LOGIN, async (arg, { rejectWithValue, dispatch }) => {
+>(types.VALIDATE_COUPON, async (arg, { rejectWithValue, dispatch }) => {
   try {
     const form = new FormData();
     form.append('coupon_code', arg?.coupon_code);
     const response = await post(apiURLs.couponValidate, arg);
+    console.log("response?.data ==>> ", response?.data);
     // showNotificationMessage(response?.data?.message);
     return response?.data;
   } catch (error: any) {
+    console.log("error.response ==>> ", error.response);
+
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         dispatch(userForceLogout({ forcelogout: true }));
@@ -61,6 +64,50 @@ export const postCouponValidate = createAsyncThunk<
         if (!handled && typeof error.response?.data?.error === 'string') {
           showNotificationMessage(error.response.data.error);
         }
+      }
+      return rejectWithValue(error?.response?.data ?? {});
+    } else {
+      return rejectWithValue({ message: error?.message ?? '' });
+    }
+  }
+});
+
+export const getPaymentMethods = createAsyncThunk<
+  any,
+  void,
+  { state: RootState }
+>(types.GET_PAYMENT_METHODS, async (_, { rejectWithValue, dispatch }) => {
+  try {
+    const response = await get(apiURLs.paymentMethods);
+    console.log("response?.data ==>> ", response?.data);
+    return response?.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        dispatch(userForceLogout({ forcelogout: true }));
+      }
+      return rejectWithValue(error?.response?.data ?? {});
+    } else {
+      return rejectWithValue({ message: error?.message ?? '' });
+    }
+  }
+});
+
+export const getActiveSubscription = createAsyncThunk<
+  any,
+  void,
+  { state: RootState }
+>(types.GET_ACTIVE_SUBSCRIPTION, async (_, { rejectWithValue, dispatch }) => {
+  try {
+    const response = await get(apiURLs.activeSubscription);
+    console.log("response getActiveSubscription ==>> ", response?.data);
+    return response?.data;
+  } catch (error: any) {
+    console.log("error getActiveSubscription ==>> ", error);
+
+    if (axios.isAxiosError(error)) {
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        dispatch(userForceLogout({ forcelogout: true }));
       }
       return rejectWithValue(error?.response?.data ?? {});
     } else {

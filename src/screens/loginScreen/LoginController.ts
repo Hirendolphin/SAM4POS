@@ -14,6 +14,7 @@ const LoginController = () => {
   const [remember, setRemember] = useState(false);
   const [dealerError, setDealerError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [clientModalVisible, setClientModalVisible] = useState(false);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
@@ -55,6 +56,14 @@ const LoginController = () => {
     }
   }, [loggedIn, userDetails?.data?.subscription_status, navigation]);
 
+  useEffect(() => {
+    if (userDetails?.is_new_customer) {
+      setTimeout(() => {
+        setClientModalVisible(true);
+      }, 500);
+    }
+  }, [userDetails?.is_new_customer]);
+
   function onLogin() {
     if (!dealerId?.trim()) {
       showNotificationMessage('Please enter your Dealer ID');
@@ -72,6 +81,38 @@ const LoginController = () => {
     dispatch(userLogin(data)).unwrap();
     // }
   }
+
+  const onSubmitClientInfo = (ip: string, port: string) => {
+    const ipRegex =
+      /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    const portNum = parseInt(port, 10);
+
+    if (!ipRegex.test(ip.trim())) {
+      showNotificationMessage('Please enter a valid Client IP address');
+      return;
+    }
+
+    if (isNaN(portNum) || portNum < 1 || portNum > 65535) {
+      showNotificationMessage('Please enter a valid Client Port (1-65535)');
+      return;
+    }
+
+    console.log('Valid Client Info:', ip, port);
+    try {
+      setClientModalVisible(false);
+      const data = {
+        dealer_id: dealerId.trim(),
+        password: password.trim(),
+        client_ip: ip.trim(),
+        client_port: port.trim(),
+      };
+      dispatch(userLogin(data)).unwrap();
+    } catch (error) {
+      setClientModalVisible(true);
+      console.log('error ===>> ', error);
+    }
+  };
+
   return {
     dealerId,
     setDealerId,
@@ -85,6 +126,9 @@ const LoginController = () => {
     setRemember,
     onLogin,
     loading,
+    clientModalVisible,
+    setClientModalVisible,
+    onSubmitClientInfo
   };
 };
 

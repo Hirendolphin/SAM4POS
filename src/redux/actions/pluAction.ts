@@ -22,6 +22,7 @@ export const getPLU = createAsyncThunk<
     const response = await get(
       `${apiURLs.pluList}?search=${searchParam}&page=${requestData.page}&page_size=${requestData.limit}`,
     );
+    console.log('response =>> ', response);
 
     return {
       ...response.data,
@@ -29,6 +30,7 @@ export const getPLU = createAsyncThunk<
       currentPage: requestData.page,
     };
   } catch (error: any) {
+    console.log('error =>> ', error?.response);
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         dispatch(userForceLogout({ forcelogout: true }));

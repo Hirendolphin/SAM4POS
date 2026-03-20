@@ -11,6 +11,9 @@ export const apiVersionCheck = 'SAM4POS/Apiversioncheck';
 export const forceUpdate = 'SAM4POS/ForceUpdate';
 export const maintenanceMode = 'SAM4POS/maintenanceMode';
 export const LAST_SYNC = 'SAM4POS/lastsync';
+export const VALIDATE_COUPON = 'SAM4POS/validateCoupon';
+export const GET_PAYMENT_METHODS = 'SAM4POS/paymentMethods';
+export const GET_ACTIVE_SUBSCRIPTION = 'SAM4POS/activeSubscription';
 
 export const SET_BARCODE_SETTINGS = 'barcodeSettings/setAll';
 export const UPDATE_BARCODE_SETTING = 'barcodeSettings/updateOne';

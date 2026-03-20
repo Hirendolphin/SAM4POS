@@ -25,9 +25,16 @@ const PaymentController = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
     subscriptions[0]?.id || null,
   );
-  const [couponMessage, setCouponMessage] = useState(null);
+  const [couponMessage, setCouponMessage] = useState<{
+    type: string;
+    text: string;
+  } | null>(null);
   const [isApplying, setIsApplying] = useState(false);
-  const [discount, setDiscount] = useState(null);
+  const [discount, setDiscount] = useState<{
+    amount: number;
+    type: string;
+    finalPrice: number | string;
+  } | null>(null);
 
   const handleSelectPlan = (id: string) => {
     setSelectedPlanId(id);
@@ -59,6 +66,7 @@ const PaymentController = () => {
       }),
     );
   };
+
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       showNotificationMessage('Please enter a coupon code.');
