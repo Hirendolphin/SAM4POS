@@ -22,7 +22,7 @@ export const getPLU = createAsyncThunk<
     const response = await get(
       `${apiURLs.pluList}?search=${searchParam}&page=${requestData.page}&page_size=${requestData.limit}`,
     );
-    console.log('response =>> ', response);
+    console.log('response getPLU =>> ', response);
 
     return {
       ...response.data,
@@ -30,7 +30,7 @@ export const getPLU = createAsyncThunk<
       currentPage: requestData.page,
     };
   } catch (error: any) {
-    console.log('error =>> ', error?.response);
+    console.log('error getPLU =>> ', error?.response);
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         dispatch(userForceLogout({ forcelogout: true }));
@@ -53,8 +53,10 @@ export const getStatusGroup = createAsyncThunk<any, void, { state: RootState }>(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await get(`${apiURLs.statusGroupList}`);
+      console.log('response getStatusGroup =>> ', response);
       return response?.data;
     } catch (error: any) {
+      console.log('error getStatusGroup =>> ', error?.response);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
@@ -78,8 +80,10 @@ export const getPriceLevel = createAsyncThunk<any, void, { state: RootState }>(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await get(`${apiURLs.priceLevel}`);
+      console.log('response getPriceLevel =>> ', response);
       return response?.data;
     } catch (error: any) {
+      console.log('error getPriceLevel =>> ', error?.response);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));

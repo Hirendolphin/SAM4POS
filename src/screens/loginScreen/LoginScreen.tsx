@@ -18,6 +18,8 @@ import { moderateScale } from '../../theme/Metrics';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ClientInfoModal from '../../components/ClientInfoModal';
 import { colors } from '../../theme/colors';
+import { Checkbox } from '../../components/Checkbox';
+import SavedCredentialsModal from '../../components/SavedCredentialsModal';
 
 export default function LoginScreen() {
   const {
@@ -35,7 +37,11 @@ export default function LoginScreen() {
     loading,
     clientModalVisible,
     setClientModalVisible,
-    onSubmitClientInfo
+    onSubmitClientInfo,
+    savedCredentialsModalVisible,
+    setSavedCredentialsModalVisible,
+    savedCredentials,
+    handleLoginWithSavedCreds,
   } = LoginController();
   const isAndroid15 = Platform.OS === 'android' && Platform.Version >= 35;
 
@@ -86,14 +92,13 @@ export default function LoginScreen() {
               <Text style={styles.error}>{passwordError}</Text>
             ) : null}
 
-            {/* <View style={styles.rememberRow}>
-          <Checkbox
-            checked={remember}
-            onChange={setRemember}
-            label="Remember me"
-          />
-        </View> */}
-
+            <View style={styles.rememberRow}>
+              <Checkbox
+                checked={remember}
+                onChange={setRemember}
+                label="Remember me"
+              />
+            </View>
             <PrimaryButton
               title="Log in"
               onPress={onLogin}
@@ -105,6 +110,13 @@ export default function LoginScreen() {
               visible={clientModalVisible}
               onClose={() => setClientModalVisible(false)}
               onSubmit={onSubmitClientInfo}
+            />
+
+            <SavedCredentialsModal
+              visible={savedCredentialsModalVisible}
+              credentialsList={savedCredentials || []}
+              onClose={() => setSavedCredentialsModalVisible(false)}
+              onLogin={handleLoginWithSavedCreds}
             />
           </View>
         </View>

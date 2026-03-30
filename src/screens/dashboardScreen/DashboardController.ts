@@ -73,7 +73,7 @@ const DashboardController = () => {
   };
 
   useEffect(() => {
-    getposDetails();
+    // getposDetails();
     // getpluAPI(1, false, '');
   }, []);
 

@@ -45,8 +45,8 @@ export function AddPLUModal({ visible, onClose, onSave, initialData }: Props) {
   const [description, setDescription] = useState('');
   const [kpDescription, setKpDescription] = useState('');
   const [groupStatus, setGroupStatus] = useState(statusGroup[0]?.value || '');
-  const [price, setPrice] = useState('0.00');
-  const [stock, setStock] = useState('0.00');
+  const [price, setPrice] = useState();
+  const [stock, setStock] = useState();
   const [priceLevel, setPriceLevel] = useState('');
   const [isValid, setIsValid] = useState(false);
   const [validMessage, setValidMessage] = useState('');
@@ -68,9 +68,9 @@ export function AddPLUModal({ visible, onClose, onSave, initialData }: Props) {
   }, [visible, initialData?.pluCode]);
 
   const toDecimal = (value: string) => {
-    if (!value) return '0.00';
+    if (!value) return '';
     const num = parseFloat(value);
-    if (isNaN(num)) return '0.00';
+    if (isNaN(num)) return '';
     return num.toFixed(2);
   };
 
@@ -114,8 +114,8 @@ export function AddPLUModal({ visible, onClose, onSave, initialData }: Props) {
     setDescription('');
     setKpDescription('');
     setGroupStatus('');
-    setPrice('0.00');
-    setStock('0.00');
+    setPrice('');
+    setStock('');
   }
 
   function handleDone() {

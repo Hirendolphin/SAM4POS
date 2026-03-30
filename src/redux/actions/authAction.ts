@@ -36,8 +36,10 @@ export const userLogin = createAsyncThunk<
     console.log('response ==>>> ', response);
     return response?.data;
   } catch (error: any) {
-    console.log('error ===>> ', error);
-    dispatch(userLogout());
+    console.log('error ===>> ', error.response);
+    if (arg?.client_ip?.trim() && arg?.client_port?.trim()) {
+      dispatch(userLogout());
+    }
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         dispatch(userForceLogout({ forcelogout: true }));

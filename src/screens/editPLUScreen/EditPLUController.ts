@@ -44,14 +44,14 @@ const EditPLUController = () => {
   const [stockModalVisible, setStockModalVisible] = useState(false);
 
   const [priceModalVisible, setPriceModalVisible] = useState(false);
-  const [price, setPrice] = useState('0.00');
+  const [price, setPrice] = useState('');
   const [level, setLevel] = useState('');
   const [isEdit, setIsEdit] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null); // current row in edit
 
   const [statusGroupModal, setStatusGroupModal] = useState(false);
   const [statusGroupList, setStatusGroupList] = useState(statusGroup);
-  const [selectedStatusGroup, setSelectedStatusGroup] = useState('');
+  const [selectedStatusGroup, setSelectedStatusGroup] = useState(pluProductData?.id_plu_status_group ?? "");
 
   const [groupModal, setGroupModal] = useState(false);
   const [groupTitle, setGroupTitle] = useState('');
@@ -78,7 +78,7 @@ const EditPLUController = () => {
   useEffect(() => {
     if (statusGroup?.length > 0) {
       setStatusGroupList(statusGroup);
-      setSelectedStatusGroup(statusGroup[0]?.value || '');
+      setSelectedStatusGroup(pluProductData?.id_plu_status_group ?? statusGroup[0]?.value);
     }
   }, [statusGroup]);
 
@@ -160,7 +160,7 @@ const EditPLUController = () => {
   const addPrice = () => {
     setIsEdit(false);
     setEditingItem(null);
-    setPrice('0.00');
+    setPrice('');
     setLevel('');
     setPriceModalVisible(true);
   };

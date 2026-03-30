@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, View, StyleSheet, Text } from 'react-native';
+import { Pressable, View, StyleSheet, Text, Image } from 'react-native';
 import { colors } from '../theme/colors';
 import {
   horizontalScale,
@@ -7,6 +7,7 @@ import {
   verticalScale,
 } from '../theme/Metrics';
 import { FontFamily } from '../assets/fonts';
+import { Icons } from '../assets/icons';
 
 type Props = {
   checked: boolean;
@@ -22,7 +23,7 @@ export function Checkbox({ checked, onChange, label }: Props) {
       style={styles.row}
     >
       <View style={[styles.box, checked && styles.boxChecked]}>
-        {checked ? <Text style={styles.tick}>✓</Text> : null}
+        {checked ? <Image source={Icons.correct} style={{ width: moderateScale(10), height: moderateScale(10), tintColor: colors.primary }} resizeMode='contain' /> : null}
       </View>
       {label ? <Text style={styles.label}>{label}</Text> : null}
     </Pressable>
@@ -57,8 +58,8 @@ const styles = StyleSheet.create({
     marginLeft: horizontalScale(8),
     color: colors.text,
     fontWeight: '400',
-    fontFamily: FontFamily.regular,
-    fontSize: moderateScale(13),
+    fontFamily: FontFamily.semiBold,
+    fontSize: moderateScale(14),
     includeFontPadding: false,
   },
 });
