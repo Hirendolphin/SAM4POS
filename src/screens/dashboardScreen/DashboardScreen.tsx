@@ -18,6 +18,7 @@ import { getPriceLevel, getStatusGroup } from '../../redux/actions/pluAction';
 import ProgressModal from '../../components/ProgressModal';
 import EmptyListComponent from '../../components/EmptyListComponent';
 import InputTextComponent from '../../components/InputTextComponent';
+import { moderateScale } from '../../theme/Metrics';
 
 export default function DashboardScreen() {
   const {
@@ -42,6 +43,7 @@ export default function DashboardScreen() {
     setSearch,
     lastSync,
     getposDetails,
+    groupList
   } = DashboardController();
 
   return (
@@ -61,7 +63,7 @@ export default function DashboardScreen() {
           </Text>
           <PrimaryButton
             title="Manage Subscription"
-            onPress={() => {}}
+            onPress={() => { }}
             style={styles.manageBtn}
           />
         </View>
@@ -101,6 +103,7 @@ export default function DashboardScreen() {
             openEditModal={openEditModal}
           />
         )}
+        contentContainerStyle={{ paddingBottom: moderateScale(70) }}
         ListEmptyComponent={<EmptyListComponent message="No PLU data Found" />}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
@@ -127,6 +130,7 @@ export default function DashboardScreen() {
           onClose={() => {
             setAddModalVisible(false);
           }}
+          groupList={groupList}
           onSave={handleSavePLU}
         />
       )}
@@ -151,10 +155,10 @@ export default function DashboardScreen() {
               fetching
                 ? 'Getting PLU Products'
                 : deleteModalVisible
-                ? 'Deleting PLU'
-                : addModalVisible
-                ? 'Adding PLU'
-                : 'Please wait… retrieving PLU details.'
+                  ? 'Deleting PLU'
+                  : addModalVisible
+                    ? 'Adding PLU'
+                    : 'Please wait… retrieving PLU details.'
             }
           />
         ))}

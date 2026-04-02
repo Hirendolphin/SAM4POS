@@ -30,6 +30,7 @@ const DashboardController = () => {
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedPLU, setSelectedPLU] = useState<PLUItem | null>(null);
+  const [groupList, setGroupList] = useState<any[]>([]);
   const { pluList, fetching, currentPage, loadingMore, lastSync } =
     useAppSelector(state => state?.plu || []);
 
@@ -75,6 +76,7 @@ const DashboardController = () => {
   useEffect(() => {
     // getposDetails();
     // getpluAPI(1, false, '');
+    getGroupListApi();
   }, []);
 
   const { userDetails }: any = useAppSelector(state => ({
@@ -120,14 +122,13 @@ const DashboardController = () => {
         // ✅ Store in Redux
         dispatch(setLastSync(formattedDate));
 
-        setTimeout(() => {
-          getpluAPI(1, false, '');
-        }, 500);
-
-        setTimeout(async () => {
-          await dispatch(getPriceLevel()).unwrap();
-          await dispatch(getStatusGroup()).unwrap();
-        }, 600);
+        // Fetch remaining data in parallel
+        await Promise.all([
+          getpluAPI(1, false, ''),
+          dispatch(getPriceLevel()).unwrap(),
+          dispatch(getStatusGroup()).unwrap(),
+          getGroupListApi(),
+        ]);
       }
     } catch (error: any) {
       console.log('error =>> ', error?.response);
@@ -147,10 +148,38 @@ const DashboardController = () => {
     }
   };
 
+  const getGroupListApi = async () => {
+    // setIsLoading(true);
+    try {
+      const response = await get(`${apiURLs.groupList}`);
+      if (response?.data?.status) {
+        const apiData = response?.data?.data || [];
+        const data = [{ value: 0, label: 'None' }, ...apiData];
+        setGroupList(data);
+        console.log('groupList =>> ', data);
+      }
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          dispatch(userForceLogout({ forcelogout: true }));
+        } else if (error.response?.data?.status === false) {
+          const eData = error?.response?.data;
+          const handled = handleAppStateFlags(eData, dispatch);
+          if (!handled && typeof error.response?.data?.error === 'string') {
+            showNotificationMessage(error.response.data.error);
+          }
+        }
+      }
+    } finally {
+      // setIsLoading(false);
+    }
+  };
+
   const handleSavePLU = async (plu: any) => {
     try {
       setLoading(true);
       const response = await post(apiURLs?.addPlu, plu);
+      console.log('response =>> ', response);
       showNotificationMessage(response?.data?.message);
       if (response?.data?.status) {
         setAddModalVisible(false);
@@ -186,7 +215,8 @@ const DashboardController = () => {
         setDeleteModalVisible(false);
         setSelectedPLU(null);
         setTimeout(() => {
-          getpluAPI(1, false, '');
+          const searchText = typeof search === 'string' ? search.trim() : '';
+          getpluAPI(1, false, searchText);
         }, 500);
       }
     } catch (error) {
@@ -245,6 +275,7 @@ const DashboardController = () => {
     setSearch,
     lastSync,
     getposDetails,
+    groupList
   };
 };
 

@@ -85,7 +85,6 @@ export default function ScanScreen() {
   );
   const [scannedProduct, setScannedProduct] = useState<PLUItem | null>(null);
   const [barcode, setBarcode] = useState<string>('');
-  const [showProduct, setShowProduct] = useState(true);
   const [isScanning, setIsScanning] = useState(true);
   const [productFound, setProductFound] = useState(false);
   const [productNotFound, setProductNotFound] = useState(false);

@@ -65,6 +65,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginVertical: verticalScale(4),
+    flexWrap: 'wrap',
   },
   rowKey: {
     color: colors.black,
@@ -79,6 +80,7 @@ export default StyleSheet.create({
     fontWeight: '600',
     includeFontPadding: false,
     fontSize: moderateScale(14),
+    flexWrap: 'wrap',
   },
   icon: {
     height: moderateScale(15),

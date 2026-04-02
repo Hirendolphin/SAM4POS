@@ -34,9 +34,10 @@ type Props = {
   onClose: () => void;
   onSave: (plu: any) => void;
   initialData?: PLUData | null;
+  groupList?: any[];
 };
 
-export function AddPLUModal({ visible, onClose, onSave, initialData }: Props) {
+export function AddPLUModal({ visible, onClose, onSave, initialData, groupList }: Props) {
   const { statusGroup, priceLevels }: any = useAppSelector(state => ({
     statusGroup: state?.plu?.statusGroup ?? [],
     priceLevels: state?.plu?.priceLevel ?? [],
@@ -45,6 +46,7 @@ export function AddPLUModal({ visible, onClose, onSave, initialData }: Props) {
   const [description, setDescription] = useState('');
   const [kpDescription, setKpDescription] = useState('');
   const [groupStatus, setGroupStatus] = useState(statusGroup[0]?.value || '');
+  const [groupLink1, setGroupLink1] = useState('');
   const [price, setPrice] = useState();
   const [stock, setStock] = useState();
   const [priceLevel, setPriceLevel] = useState('');
@@ -144,6 +146,7 @@ export function AddPLUModal({ visible, onClose, onSave, initialData }: Props) {
       plu_desc: description ?? '',
       stock_qty: Number(toDecimal(stock)),
       str_kp_desc: kpDescription ?? '',
+      id_group1: Number(groupLink1) || 0,
     };
 
     onSave(payload);
@@ -225,15 +228,20 @@ export function AddPLUModal({ visible, onClose, onSave, initialData }: Props) {
                 onChangeText: setDescription,
               }}
             />
+
+
             <InputTextComponent
-              placeholdertext="KP Description"
-              label="KP Description"
-              inputProps={{
-                value: kpDescription,
-                onChangeText: setKpDescription,
+              label={'Group Link 1'}
+              placeholdertext={'Group Link 1'}
+              isDropdown={true}
+              data={groupList}
+              dropdownProps={{
+                value: groupLink1,
+                onChange: (item: any) => {
+                  setGroupLink1(item.value);
+                },
               }}
             />
-
             <InputTextComponent
               label={'Group Status'}
               placeholdertext={'Group Status'}
@@ -275,6 +283,14 @@ export function AddPLUModal({ visible, onClose, onSave, initialData }: Props) {
                 value: priceLevel,
                 onChange: (item: any) => setPriceLevel(item.value),
                 // selectedTextStyle: styles.selectedTextStyle,
+              }}
+            />
+            <InputTextComponent
+              placeholdertext="KP Description"
+              label="KP Description"
+              inputProps={{
+                value: kpDescription,
+                onChangeText: setKpDescription,
               }}
             />
 

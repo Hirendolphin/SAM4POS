@@ -73,27 +73,22 @@ const LoginController = () => {
         }
       }
 
-      if (remember) {
-        const existingIndex = credentialsArray.findIndex((c: any) => c.client_ip === data.client_ip);
-        if (existingIndex !== -1) {
-          credentialsArray[existingIndex] = Object.assign({}, credentialsArray[existingIndex], data);
-        } else {
-          credentialsArray.push(data);
-          if (credentialsArray.length > 2) {
-            credentialsArray.shift(); // Keep only the latest 2 accounts
-          }
-        }
+      // Always update/add to credentials array regardless of 'remember' state
+      const existingIndex = credentialsArray.findIndex((c: any) =>
+        c.dealer_id === data.dealer_id && c.client_ip === data.client_ip
+      );
+
+      if (existingIndex !== -1) {
+        credentialsArray[existingIndex] = Object.assign({}, credentialsArray[existingIndex], data);
       } else {
-        credentialsArray = credentialsArray.filter((c: any) => c.client_ip !== data.client_ip);
+        credentialsArray.push(data);
+        if (credentialsArray.length > 5) {
+          credentialsArray.shift(); // Keep latest 5 accounts
+        }
       }
 
-      if (credentialsArray.length > 0) {
-        await AsyncStorage.setItem('REMEMBER_ME_CREDENTIALS', JSON.stringify(credentialsArray));
-        setSavedCredentials(credentialsArray);
-      } else {
-        await AsyncStorage.removeItem('REMEMBER_ME_CREDENTIALS');
-        setSavedCredentials([]);
-      }
+      await AsyncStorage.setItem('REMEMBER_ME_CREDENTIALS', JSON.stringify(credentialsArray));
+      setSavedCredentials(credentialsArray);
     } catch (e) {
       console.log('Error saving credentials', e);
     }
@@ -102,7 +97,7 @@ const LoginController = () => {
   const handleLoginWithSavedCreds = async (selectedCreds: any) => {
     setSavedCredentialsModalVisible(false);
     if (!selectedCreds) return;
-    
+
     setDealerId(selectedCreds.dealer_id || '');
     setPassword(selectedCreds.password || '');
     setRemember(true);
@@ -118,6 +113,7 @@ const LoginController = () => {
       }
     } catch (error) {
       console.log('Login error ===>> ', error);
+      // If login fails, kept fields already populated from lines 106-107
     }
   };
 
