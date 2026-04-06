@@ -47,8 +47,8 @@ export function AddPLUModal({ visible, onClose, onSave, initialData, groupList }
   const [kpDescription, setKpDescription] = useState('');
   const [groupStatus, setGroupStatus] = useState(statusGroup[0]?.value || '');
   const [groupLink1, setGroupLink1] = useState('');
-  const [price, setPrice] = useState();
-  const [stock, setStock] = useState();
+  const [price, setPrice] = useState<string>('');
+  const [stock, setStock] = useState<string>('');
   const [priceLevel, setPriceLevel] = useState('');
   const [isValid, setIsValid] = useState(false);
   const [validMessage, setValidMessage] = useState('');
@@ -155,10 +155,14 @@ export function AddPLUModal({ visible, onClose, onSave, initialData, groupList }
   const decimalRegex = /^(?:\d+(\.\d{0,2})?)?$/;
 
   const handlePriceChange = (text: string) => {
-    const value = text.replace(/,/g, '');
-    if (value === '' || decimalRegex.test(value)) {
-      setPrice(value);
+    const digits = text.replace(/\D/g, '');
+    if (!digits) {
+      setPrice('');
+      return;
     }
+    const numericValue = parseInt(digits, 10);
+    const formatted = (numericValue / 100).toFixed(2);
+    setPrice(formatted);
   };
 
   const handleStockChange = (text: string) => {
@@ -285,19 +289,31 @@ export function AddPLUModal({ visible, onClose, onSave, initialData, groupList }
                 // selectedTextStyle: styles.selectedTextStyle,
               }}
             />
-            <InputTextComponent
+            {/* <InputTextComponent
               placeholdertext="KP Description"
               label="KP Description"
               inputProps={{
                 value: kpDescription,
                 onChangeText: setKpDescription,
               }}
-            />
+            /> */}
 
             <View style={{ height: 20 }} />
           </KeyboardAwareScrollView>
-
-          <PrimaryButton title={'Done'} onPress={handleDone} />
+          <View style={styles.buttonContainer}>
+            <PrimaryButton
+              title="Cancel"
+              onPress={onClose}
+              style={{ ...styles.button, ...styles.cancelButton }}
+              labelStyle={styles.cancelButtonText}
+            />
+            <PrimaryButton
+              title="Done"
+              onPress={handleDone}
+              style={{ ...styles.button, ...styles.saveButton }}
+            />
+          </View>
+          {/* <PrimaryButton title={'Done'} onPress={handleDone} /> */}
         </View>
       </View>
     </Modal>

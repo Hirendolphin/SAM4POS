@@ -16,6 +16,7 @@ import MainTabs from './MainTabs';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import ForceLogoutComponent from '../components/ForceLogoutComponent';
 import EditPLUScreen from '../screens/editPLUScreen/EditPLUScreen';
+import DashboardScreen from '../screens/dashboardScreen/DashboardScreen';
 import { PLUItem } from '../redux/dataTypes';
 import ForceUpdateModal from '../components/ForceUpdateModal';
 import MaintenanceModal from '../components/MaintenanceModal';
@@ -47,6 +48,8 @@ export type RootStackParamList = {
   [Routes.login]: undefined;
   [Routes.payment]: undefined;
   [Routes.mainTabs]: undefined;
+  [Routes.dashboard]: undefined;
+  [Routes.home]: undefined;
   [Routes.subscription]: undefined;
   [Routes.privacyPolicy]: undefined;
   [Routes.termsConditions]: undefined;
@@ -164,6 +167,7 @@ export function AppNavigator() {
             name={Routes.termsConditions}
             component={TermsConditionsScreen}
           />
+          <Stack.Screen name={Routes.dashboard} component={DashboardScreen} />
           <Stack.Screen name={Routes.editPLUScreen} component={EditPLUScreen} />
           <Stack.Screen
             name={Routes.barcodeSettingScreen}

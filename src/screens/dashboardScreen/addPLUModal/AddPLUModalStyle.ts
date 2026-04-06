@@ -48,4 +48,22 @@ export default StyleSheet.create({
   spacer: {
     height: moderateScale(12),
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    marginTop: moderateScale(15),
+    justifyContent: 'space-between',
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: moderateScale(5),
+  },
+  cancelButton: {
+    backgroundColor: colors.backgorund3,
+  },
+  cancelButtonText: {
+    color: colors.primary,
+  },
+  saveButton: {
+    backgroundColor: colors.primary,
+  },
 });

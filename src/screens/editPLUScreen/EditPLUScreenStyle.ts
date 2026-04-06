@@ -220,10 +220,10 @@ export default StyleSheet.create({
     paddingBottom: moderateScale(20),
   },
 
-  saveButton: {
-    marginHorizontal: moderateScale(20),
-    marginVertical: moderateScale(20),
-  },
+  // saveButton: {
+  //   marginHorizontal: moderateScale(20),
+  //   marginVertical: moderateScale(20),
+  // },
 
   /* Column Widths */
   col12: { width: '10%' },
@@ -253,5 +253,24 @@ export default StyleSheet.create({
   icon: {
     height: moderateScale(15),
     width: moderateScale(15),
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: moderateScale(20),
+    marginVertical: moderateScale(20),
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: moderateScale(5),
+  },
+  cancelButton: {
+    backgroundColor: colors.backgorund3,
+  },
+  cancelButtonText: {
+    color: colors.primary,
+  },
+  saveButton: {
+    backgroundColor: colors.primary,
   },
 });

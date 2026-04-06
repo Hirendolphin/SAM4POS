@@ -20,7 +20,11 @@ import EmptyListComponent from '../../components/EmptyListComponent';
 import InputTextComponent from '../../components/InputTextComponent';
 import { moderateScale } from '../../theme/Metrics';
 
+import HeaderComponent from '../../components/HeaderComponent';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+
 export default function DashboardScreen() {
+  const navigation = useNavigation();
   const {
     userDetails,
     openDeleteModal,
@@ -48,6 +52,10 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
+      {/* <HeaderComponent
+        title="PLU List"
+        onPressBack={() => navigation.dispatch(CommonActions.goBack())}
+      /> */}
       {/* Plan Card */}
       {userDetails?.data?.subscription_status == 'Active' && (
         <View style={styles.freeCard}>

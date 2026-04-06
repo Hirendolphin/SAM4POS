@@ -208,8 +208,15 @@ export default function ScanScreen() {
       showNotificationMessage(response?.data?.message);
       if (response?.data?.status) {
         setAddModalVisible(false);
+        setProductFound(false);
+        setProductNotFound(false);
         setTimeout(async () => {
           await getpluAPI();
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: Routes.dashboard,
+            }),
+          );
         }, 500);
       }
     } catch (error) {
@@ -498,6 +505,8 @@ export default function ScanScreen() {
           onClose={() => {
             setAddModalVisible(false);
             setBarcode('');
+            setProductFound(false);
+            setProductNotFound(false);
           }}
           onSave={handleSavePLU}
           initialData={barcode ? { pluCode: barcode } : null}

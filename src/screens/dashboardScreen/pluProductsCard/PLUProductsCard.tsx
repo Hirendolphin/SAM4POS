@@ -61,12 +61,12 @@ const PLUProductsCard = ({
       <Row label="Price :" value={item.price} /> */}
       <Row label="Stock :" value={String(item.stock_qty)} />
       <View style={{ height: moderateScale(6) }} />
-      {item?.str_kp_desc && (
+      {/* {item?.str_kp_desc && (
         <>
           <Text style={styles.rowKey}>KP Description :</Text>
           <Text style={styles.rowValue}>{item.str_kp_desc}</Text>
         </>
-      )}
+      )} */}
     </View>
   );
 };

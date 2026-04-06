@@ -29,7 +29,7 @@ const CustomTabbar = (props: BottomTabBarProps) => {
                 styles.button,
                 props?.state?.index === 0 && styles.selectedButton,
               ]}
-              buttonText={'Dashboard'}
+              buttonText={'Home'}
               image={
                 props?.state?.index === 0
                   ? Icons.tabSelectedDashboard

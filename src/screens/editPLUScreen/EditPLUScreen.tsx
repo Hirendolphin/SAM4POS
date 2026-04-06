@@ -90,12 +90,12 @@ export default function EditPLUScreen() {
             value={desc || ''}
             onChange={setDesc}
           />
-          <InputWithCounter
+          {/* <InputWithCounter
             label="KP DESCRIPTION"
             max={30}
             value={kpDesc || ''}
             onChange={setKpDesc}
-          />
+          /> */}
           <ReadOnlyInput label="PLU CODE" value={pluProductData?.plu_code} />
         </View>
 
@@ -206,11 +206,25 @@ export default function EditPLUScreen() {
         />
       </ScrollView>
 
-      <PrimaryButton
+      {/* <PrimaryButton
         title="Save"
         onPress={handleSave}
         style={styles.saveButton}
-      />
+      /> */}
+
+      <View style={styles.buttonContainer}>
+        <PrimaryButton
+          title="Cancel"
+          onPress={() => navigation.dispatch(CommonActions.goBack())}
+          style={{ ...styles.button, ...styles.cancelButton }}
+          labelStyle={styles.cancelButtonText}
+        />
+        <PrimaryButton
+          title="Save"
+          onPress={handleSave}
+          style={{ ...styles.button, ...styles.saveButton }}
+        />
+      </View>
       <PriceModal
         description={desc}
         level={level}
@@ -242,8 +256,8 @@ export default function EditPLUScreen() {
           statusGroupModal
             ? selectedStatusGroup
             : activeLinkKey
-            ? groupLinks[activeLinkKey]
-            : null
+              ? groupLinks[activeLinkKey]
+              : null
         }
         onClose={() => {
           setStatusGroupModal(false);

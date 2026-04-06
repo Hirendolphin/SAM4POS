@@ -43,12 +43,15 @@ const PriceModal: FC<PriceModalProps> = ({
   description,
   isEdit = false,
 }) => {
-  const decimalRegex = /^(?:\d+(\.\d{0,2})?)?$/;
   const handlePriceChange = (text: string) => {
-    const value = text.replace(/,/g, '');
-    if (value === '' || decimalRegex.test(value)) {
-      setPrice(value);
+    const digits = text.replace(/\D/g, '');
+    if (!digits) {
+      setPrice('');
+      return;
     }
+    const numericValue = parseInt(digits, 10);
+    const formatted = (numericValue / 100).toFixed(2);
+    setPrice(formatted);
   };
   return (
     <Modal visible={visible} transparent animationType="fade">
