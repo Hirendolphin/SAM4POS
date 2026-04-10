@@ -104,11 +104,13 @@ const EditPLUController = () => {
     try {
       const response = await get(`${apiURLs.groupList}`);
       if (response?.data?.status) {
+        console.log('response groupList ==>> ', response);
         const apiData = response?.data?.data || [];
         const data = [{ value: 0, label: 'None' }, ...apiData];
         setGroupList(data);
       }
     } catch (error: any) {
+      console.log('error groupList ==>> ', error);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));

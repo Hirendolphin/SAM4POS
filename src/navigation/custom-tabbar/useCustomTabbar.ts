@@ -32,8 +32,8 @@ const useCustomTabbar = (props: BottomTabBarProps) => {
   }, []);
 
   const handleDashboard = () => {
-    props.navigation.dispatch(TabActions.jumpTo(Routes.dashboard));
-    // props.navigation.dispatch(TabActions.jumpTo(Routes.home));
+    // props.navigation.dispatch(TabActions.jumpTo(Routes.dashboard));
+    props.navigation.dispatch(TabActions.jumpTo(Routes.home));
   };
   const handleScan = () => {
     props.navigation.dispatch(TabActions.jumpTo(Routes.scan));

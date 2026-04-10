@@ -19,8 +19,8 @@ const MainTabs = () => {
         header: () => <TabHeader />,
       }}
     >
-      {/* <Tab.Screen name={Routes.home} component={HomeScreen} /> */}
-      <Tab.Screen name={Routes.dashboard} component={DashboardScreen} />
+      <Tab.Screen name={Routes.home} component={HomeScreen} />
+      {/* <Tab.Screen name={Routes.dashboard} component={DashboardScreen} /> */}
       <Tab.Screen name={Routes.scan} component={ScanScreen} />
       <Tab.Screen name={Routes.settings} component={SettingsScreen} />
     </Tab.Navigator>

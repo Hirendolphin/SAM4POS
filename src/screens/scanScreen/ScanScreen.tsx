@@ -36,7 +36,7 @@ import {
   verticalScale,
 } from '../../theme/Metrics';
 import styles from './ScanScreenStyle';
-import { apiURLs, post } from '../../services/api';
+import { apiURLs, get, post } from '../../services/api';
 import { PLUItem } from '../../redux/dataTypes';
 import { AddPLUModal } from '../dashboardScreen/addPLUModal/AddPLUModal';
 import { Routes } from '../../constants';
@@ -95,6 +95,7 @@ export default function ScanScreen() {
   const [loading, setLoading] = useState(false);
   const [permissionModalVisible, setPermissionModalVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [groupList, setGroupList] = useState<any[]>([]);
 
   const { barcodeSettings }: any = useAppSelector(state => ({
     barcodeSettings: state?.barcodeSetting || {},
@@ -139,12 +140,11 @@ export default function ScanScreen() {
     }, [cameraDevice, hasPermission]),
   );
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     setProductFound(false);
-  //     setProductNotFound(false);
-  //   }, []),
-  // );
+  useFocusEffect(
+    useCallback(() => {
+      getGroupListApi();
+    }, []),
+  );
 
   const openAppSettings = () => {
     Linking.openSettings().catch(() => {
@@ -154,6 +154,33 @@ export default function ScanScreen() {
 
   const getpluAPI = async () => {
     await dispatch(getPLU({ page: 1, limit: 10, search: '' }));
+  };
+
+  const getGroupListApi = async () => {
+    // setIsLoading(true);
+    try {
+      const response = await get(`${apiURLs.groupList}`);
+      if (response?.data?.status) {
+        const apiData = response?.data?.data || [];
+        const data = [{ value: 0, label: 'None' }, ...apiData];
+        setGroupList(data);
+        console.log('groupList =>> ', data);
+      }
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          dispatch(userForceLogout({ forcelogout: true }));
+        } else if (error.response?.data?.status === false) {
+          const eData = error?.response?.data;
+          const handled = handleAppStateFlags(eData, dispatch);
+          if (!handled && typeof error.response?.data?.error === 'string') {
+            showNotificationMessage(error.response.data.error);
+          }
+        }
+      }
+    } finally {
+      // setIsLoading(false);
+    }
   };
 
   const codeScanner = useCodeScanner({
@@ -510,6 +537,7 @@ export default function ScanScreen() {
           }}
           onSave={handleSavePLU}
           initialData={barcode ? { pluCode: barcode } : null}
+          groupList={groupList}
         />
       )}
       {loading && <ProgressModal ismodelVisible={loading} label="Adding PLU" />}

@@ -11,7 +11,12 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
-    padding: moderateScale(20),
+    // padding: moderateScale(20),
+  },
+  content: {
+    flex: 1,
+    paddingTop: moderateScale(20),
+    paddingHorizontal: moderateScale(20),
   },
 
   freeCard: {

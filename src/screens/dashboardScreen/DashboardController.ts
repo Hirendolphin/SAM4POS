@@ -131,8 +131,9 @@ const DashboardController = () => {
         ]);
       }
     } catch (error: any) {
-      console.log('error =>> ', error?.response);
+      dispatch(setLastSync('Not Synced'));
       if (axios.isAxiosError(error)) {
+        console.log('error =>> ', error?.response);
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
         } else if (error.response?.data?.status === false) {
@@ -189,6 +190,7 @@ const DashboardController = () => {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        console.log('error =>> ', error);
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
         } else if (error.response?.data?.status === false) {
@@ -221,6 +223,7 @@ const DashboardController = () => {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        console.log('error =>> ', error);
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));
         } else if (error.response?.data?.status === false) {

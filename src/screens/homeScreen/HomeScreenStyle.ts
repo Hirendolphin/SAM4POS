@@ -35,19 +35,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitle: {
-    fontSize: moderateScale(18),
+    fontSize: moderateScale(15),
     fontFamily: FontFamily.semiBold,
     color: colors.black,
     marginBottom: moderateScale(4),
   },
   cardSubtitle: {
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(13),
     fontFamily: FontFamily.medium,
     color: colors.textGray,
   },
   iconImage: {
-    width: moderateScale(40),
-    height: moderateScale(40),
+    width: moderateScale(30),
+    height: moderateScale(30),
     marginLeft: moderateScale(16),
     tintColor: colors.primary,
   },
