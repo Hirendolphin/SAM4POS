@@ -150,6 +150,14 @@ const HomeScreenController = () => {
     );
   };
 
+  const navigateToSyncManagement = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: Routes.syncManagement,
+      }),
+    );
+  };
+
   return {
     addModalVisible,
     setAddModalVisible,
@@ -159,6 +167,7 @@ const HomeScreenController = () => {
     handleSavePLU,
     openAddModal,
     navigateToDashboard,
+    navigateToSyncManagement,
   };
 };
 

@@ -16,6 +16,7 @@ export default function HomeScreen() {
     handleSavePLU,
     openAddModal,
     navigateToDashboard,
+    navigateToSyncManagement,
   } = HomeScreenController();
 
   return (
@@ -36,6 +37,14 @@ export default function HomeScreen() {
           <Text style={styles.cardSubtitle}>Quickly create a new product</Text>
         </View>
         <Image source={Icons.add} style={styles.iconImage} />
+      </Pressable>
+
+      <Pressable style={styles.card} onPress={navigateToSyncManagement}>
+        <View style={styles.cardContent}>
+          <Text style={styles.cardTitle}>Pending Changes</Text>
+          <Text style={styles.cardSubtitle}>Sync modified PLUs to POS</Text>
+        </View>
+        <Image source={Icons.refresh} style={styles.iconImage} />
       </Pressable>
 
       {!loading && addModalVisible && (

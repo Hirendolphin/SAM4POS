@@ -30,6 +30,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { checkVersion, CheckVersionResponse } from 'react-native-check-version';
 import PayPalWebViewScreen from '../screens/payPalWebViewScreen/PayPalWebViewScreen';
 import BarcodeSettingScreen from '../screens/barcodeSettingScreen/BarcodeSettingScreen';
+import SyncManagementScreen from '../screens/syncManagementScreen/SyncManagementScreen';
 
 type EditPLU = Partial<{
   pluData: PLUItem;
@@ -56,6 +57,7 @@ export type RootStackParamList = {
   [Routes.editPLUScreen]: EditPLU;
   [Routes.payPalWebViewScreen]: PaypalView;
   [Routes.barcodeSettingScreen]: undefined;
+  [Routes.syncManagement]: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -176,6 +178,10 @@ export function AppNavigator() {
           <Stack.Screen
             name={Routes.payPalWebViewScreen}
             component={PayPalWebViewScreen}
+          />
+          <Stack.Screen
+            name={Routes.syncManagement}
+            component={SyncManagementScreen}
           />
         </Stack.Navigator>
         {forceLogout?.forcelogout && (

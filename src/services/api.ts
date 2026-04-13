@@ -99,6 +99,7 @@ type ApiUrls = {
   groupList: string;
   statusGroupList: string;
   pluList: string;
+  pendingPluList: string;
   couponValidate: string;
   pluScan: string;
   checkPLU: string;
@@ -125,6 +126,7 @@ const apiURLs: ApiUrls = {
   priceLevel: 'plu/func-tend-category/',
 
   pluList: 'plu/lists/',
+  pendingPluList: 'plu/sync-history/',
   couponValidate: 'coupon/validate/',
   pluScan: 'plu/scan/',
   checkPLU: 'plu/check-plu-code/',

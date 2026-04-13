@@ -12,6 +12,7 @@ const Routes = Object.freeze({
   scan: 'Scan',
   settings: 'Settings',
   mainTabs: 'MainTabs',
+  syncManagement: 'SyncManagement',
 });
 
 export { Routes };
