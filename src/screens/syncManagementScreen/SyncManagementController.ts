@@ -1,43 +1,22 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { showNotificationMessage } from '../utils/helperFunction';
-
-export interface PendingPLUItem {
-  id: string;
-  name: string;
-  pluNumber: string;
-  price: string;
-  changeType: 'Add' | 'Edit' | 'Update';
-  selected: boolean;
-}
-
-const DUMMY_DATA: PendingPLUItem[] = Array.from({ length: 35 }).map((_, i) => ({
-  id: `${i + 1}`,
-  name: `PLU Item ${i + 1}`,
-  pluNumber: `300${i + 1}`,
-  changeType: i % 3 === 0 ? 'Add' : i % 3 === 1 ? 'Update' : i % 3 === 2 ? "Delete" : 'Edit',
-  price: `$${(1.5 + i * 0.25).toFixed(2)}`,
-  selected: false,
-}));
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { getPendingPLU } from '../../redux/actions/pluAction';
+import { PLUItem } from '../../redux/dataTypes';
 
 const SyncManagementController = () => {
   const navigation = useNavigation();
-  const [syncItems, setSyncItems] = useState<PendingPLUItem[]>(DUMMY_DATA);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const { pendingPluList, fetching, loadingMore } = useAppSelector(state => state.pendingPlu);
+
+  const [localLoading, setLocalLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState<string>('');
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const LIMIT = 10;
-
-  // Filter items based on debounced search text to mimic API search latency
-  const filteredItems = syncItems.filter(item =>
-    item.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-    item.pluNumber.includes(debouncedSearch)
-  );
-  const paginatedItems = filteredItems.slice(0, currentPage * LIMIT);
-  const hasMore = paginatedItems.length < filteredItems.length;
 
   // React to search text changes with a debounce to mimic `DashboardController`
   useEffect(() => {
@@ -49,13 +28,22 @@ const SyncManagementController = () => {
     return () => clearTimeout(timeout);
   }, [search]);
 
+  useEffect(() => {
+    dispatch(
+      getPendingPLU({
+        page: currentPage,
+        limit: LIMIT,
+        search: debouncedSearch,
+        isLoadMore: currentPage > 1,
+      })
+    );
+  }, [currentPage, debouncedSearch, dispatch]);
+
+  const hasMore = pendingPluList.next !== null;
+
   const handleLoadMore = () => {
-    if (hasMore && !loadingMore) {
-      setLoadingMore(true);
-      setTimeout(() => {
-        setCurrentPage(prev => prev + 1);
-        setLoadingMore(false);
-      }, 1000);
+    if (hasMore && !loadingMore && !fetching) {
+      setCurrentPage(prev => prev + 1);
     }
   };
 
@@ -63,38 +51,65 @@ const SyncManagementController = () => {
     navigation.goBack();
   };
 
-  const handleToggleItem = useCallback((id: string) => {
-    setSyncItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, selected: !item.selected } : item
-      )
+  const handleToggleItem = useCallback((id: number) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(selId => selId !== id) : [...prev, id]
     );
   }, []);
 
-  const handleToggleSelectAll = useCallback((selectAll: boolean) => {
-    setSyncItems(prevItems =>
-      prevItems.map(item => ({ ...item, selected: selectAll }))
-    );
-  }, []);
+  const handleToggleSelectAll = useCallback(
+    (selectAll: boolean) => {
+      if (selectAll) {
+        setSelectedIds(pendingPluList.results.map(item => item.id));
+      } else {
+        setSelectedIds([]);
+      }
+    },
+    [pendingPluList.results]
+  );
 
-  const isAllSelected = syncItems.length > 0 && syncItems.every(item => item.selected);
-  const selectedCount = syncItems.filter(item => item.selected).length;
+  const mappedPendingPluList = useMemo(
+    () => ({
+      ...pendingPluList,
+      results: pendingPluList.results.map(item => ({
+        ...item,
+        selected: selectedIds.includes(item.id),
+      })),
+    }),
+    [pendingPluList, selectedIds]
+  );
+
+  const isAllSelected =
+    mappedPendingPluList.results.length > 0 &&
+    mappedPendingPluList.results.every(item => item.selected);
+  const selectedCount = selectedIds.length;
 
   const handleSyncSelected = async () => {
-    const itemsToSync = syncItems.filter(item => item.selected);
+    const itemsToSync = selectedIds;
     if (itemsToSync.length === 0) return;
 
-    setLoading(true);
-    setTimeout(() => {
-      setSyncItems(prevItems => prevItems.filter(item => !item.selected));
-      setLoading(false);
-      showNotificationMessage(`Successfully synced ${itemsToSync.length} PLU items to POS.`);
-    }, 1500);
+    console.log('itemsToSync =>> ', itemsToSync);
+
+    // setLocalLoading(true);
+    // setTimeout(() => {
+    //   setLocalLoading(false);
+    //   showNotificationMessage(`Successfully synced ${itemsToSync.length} PLU items to POS.`);
+    //   setSelectedIds([]);
+    //   setCurrentPage(1);
+    //   dispatch(
+    //     getPendingPLU({
+    //       page: 1,
+    //       limit: LIMIT,
+    //       search: debouncedSearch,
+    //       isLoadMore: false,
+    //     })
+    //   );
+    // }, 1500);
   };
 
   return {
-    paginatedItems,
-    loading,
+    pendingPluList: mappedPendingPluList,
+    loading: fetching || localLoading,
     loadingMore,
     search,
     setSearch,

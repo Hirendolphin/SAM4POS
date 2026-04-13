@@ -16,7 +16,7 @@ const persistConfig = {
   key: 'root',
   version: 1,
   storage: AsyncStorage,
-  whitelist: ['auth', 'subscription', 'plu', 'barcodeSetting'],
+  whitelist: ['auth', 'subscription', 'plu', 'barcodeSetting', 'pendingPlu'],
   transforms: [transformFetchings],
 };
 

@@ -125,6 +125,8 @@ export type PLUItem = {
   plu_desc: string;
   strImageLink: string | null;
   plu_code: string;
+  operation?: string;
+  operation_display?: string;
   stock_qty: number;
   min_stock_qty: number;
   modifier_stock_qty: number;
@@ -139,6 +141,7 @@ export type PLUItem = {
   long_plu_cost_price: number;
   is_first_sale: boolean;
   str_kp_desc: string | null;
+  selected?: boolean;
 };
 
 export type PLUList = {
@@ -162,4 +165,12 @@ export type PLUReducerState = {
 export type StatusGroup = {
   label: string;
   value: number;
+};
+
+export type PendingPLUReducerState = {
+  pendingPluList: PLUList;
+  currentPage: number;
+  limit: number;
+  fetching: boolean;
+  loadingMore: boolean;
 };

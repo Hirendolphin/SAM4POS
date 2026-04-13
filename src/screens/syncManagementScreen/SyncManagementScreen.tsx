@@ -12,7 +12,7 @@ import SyncManagementCard from './syncManagementCard/SyncManagementCard';
 
 export default function SyncManagementScreen() {
   const {
-    paginatedItems,
+    pendingPluList,
     loading,
     loadingMore,
     goBack,
@@ -25,6 +25,8 @@ export default function SyncManagementScreen() {
     search,
     setSearch,
   } = SyncManagementController();
+
+  console.log('pendingPluList =>> ', pendingPluList);
 
   return (
     <View style={styles.container}>
@@ -55,8 +57,8 @@ export default function SyncManagementScreen() {
         </View>
 
         <FlatList
-          data={paginatedItems}
-          keyExtractor={(item) => item.id}
+          data={pendingPluList.results}
+          keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <SyncManagementCard
@@ -78,7 +80,7 @@ export default function SyncManagementScreen() {
         />
       </View>
 
-      {paginatedItems.length > 0 && (
+      {pendingPluList.results.length > 0 && (
         <View style={styles.bottomActionBar}>
           <PrimaryButton
             title={`Sync Selected (${selectedCount})`}
