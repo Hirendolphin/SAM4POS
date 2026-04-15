@@ -138,7 +138,7 @@ export const getPriceLevel = createAsyncThunk<any, void, { state: RootState }>(
 );
 
 export const getGroupList = createAsyncThunk<any, void, { state: RootState }>(
-  'SAM4POS/getGroupList',
+  types.GET_GROUP_LIST,
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await get(`${apiURLs.groupList}`);
@@ -158,3 +158,49 @@ export const getGroupList = createAsyncThunk<any, void, { state: RootState }>(
 
 export const setLastSync = createAction<string>(types.LAST_SYNC);
 export const clearPendingPlu = createAction(types.CLEAR_PENDING_PLU);
+
+export const getPosDetails = createAsyncThunk<any, void, { state: RootState }>(
+  types.GET_POS_DETAILS,
+  async (_, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await get(`${apiURLs.posDetails}`);
+      console.log('response getPosDetails =>> ', response);
+
+      if (response?.status) {
+        const now = new Date();
+
+        const day = now.getDate().toString().padStart(2, '0');
+        const month = now.toLocaleString('en-US', { month: 'short' });
+        const year = now.getFullYear();
+
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        hours = hours % 12 || 12;
+
+        const formattedDate = `${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
+
+        dispatch(setLastSync(formattedDate));
+
+        // Fetch remaining data in parallel
+        await Promise.all([
+          dispatch(getPLU({ page: 1, limit: 10 })).unwrap(),
+          dispatch(getPriceLevel()).unwrap(),
+          dispatch(getStatusGroup()).unwrap(),
+          dispatch(getGroupList()).unwrap(),
+        ]);
+      }
+
+      return response?.data;
+    } catch (error: any) {
+      console.log('error getPosDetails =>> ', error?.response);
+      handleApiError(error, dispatch as any);
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data ?? {});
+      } else {
+        return rejectWithValue({ message: error.message ?? '' });
+      }
+    }
+  },
+);

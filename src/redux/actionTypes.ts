@@ -8,6 +8,8 @@ export const GET_PENDING_PLU = 'SAM4POS/pendingPluList';
 export const SYNC_PLU = 'SAM4POS/pluSync';
 export const GET_STATUS_GROUP = 'SAM4POS/StatusGroup';
 export const GET_PRICE_LEVEL = 'SAM4POS/Pricelevel';
+export const GET_POS_DETAILS = 'SAM4POS/getPosDetails';
+export const GET_GROUP_LIST = 'SAM4POS/getGroupList';
 
 export const apiVersionCheck = 'SAM4POS/Apiversioncheck';
 export const forceUpdate = 'SAM4POS/ForceUpdate';

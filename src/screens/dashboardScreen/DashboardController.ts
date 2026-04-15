@@ -7,6 +7,7 @@ import {
   getStatusGroup,
   setLastSync,
 } from '../../redux/actions/pluAction';
+import { getPosDetails } from '../../redux/actions/pluAction';
 import { getGroupList } from '../../redux/actions/pluAction';
 import { PLUItem } from '../../redux/dataTypes';
 import {
@@ -43,6 +44,19 @@ const DashboardController = () => {
       setSearch('');
     }, []),
   );
+  useEffect(() => {
+    (async () => {
+      try {
+        await Promise.all([
+          getStatusGroupApi(),
+          getPriceLevelListApi(),
+          getGroupListApi(),
+        ]);
+      } catch (e) {
+        /* errors handled in helper via handleApiError */
+      }
+    })();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -99,22 +113,22 @@ const DashboardController = () => {
     }
   };
 
-  useEffect(() => {
-    // trigger the unified pending-check flow before getting pos details
-    (async () => {
-      try {
-        trigger(getposDetails);
-        // on visible, fetch mandatory helper APIs
-        await Promise.all([
-          getStatusGroupApi(),
-          getPriceLevelListApi(),
-          getGroupListApi(),
-        ]);
-      } catch (e) {
-        /* handled by handleApiError */
-      }
-    })();
-  }, []);
+  // useEffect(() => {
+  //   // trigger the unified pending-check flow before getting pos details
+  //   (async () => {
+  //     try {
+  //       trigger(getposDetails);
+  //       // on visible, fetch mandatory helper APIs
+  //       await Promise.all([
+  //         getStatusGroupApi(),
+  //         getPriceLevelListApi(),
+  //         getGroupListApi(),
+  //       ]);
+  //     } catch (e) {
+  //       /* handled by handleApiError */
+  //     }
+  //   })();
+  // }, []);
 
   const { userDetails }: any = useAppSelector(state => ({
     userDetails: state?.auth?.userLoginDetails ?? {},
@@ -139,34 +153,7 @@ const DashboardController = () => {
     try {
       setLoading(true);
       setSearch('');
-      const response = await get(`${apiURLs?.posDetails}`);
-      console.log('response =>> ', response);
-      if (response?.status) {
-        const now = new Date();
-
-        const day = now.getDate().toString().padStart(2, '0');
-        const month = now.toLocaleString('en-US', { month: 'short' });
-        const year = now.getFullYear();
-
-        let hours = now.getHours();
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-
-        hours = hours % 12 || 12; // convert to 12-hour format
-
-        const formattedDate = `${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
-
-        // ✅ Store in Redux
-        dispatch(setLastSync(formattedDate));
-
-        // Fetch remaining data in parallel
-        await Promise.all([
-          getpluAPI(1, false, ''),
-          dispatch(getPriceLevel()).unwrap(),
-          dispatch(getStatusGroup()).unwrap(),
-          getGroupListApi(),
-        ]);
-      }
+      await dispatch(getPosDetails()).unwrap();
     } catch (error: any) {
       dispatch(setLastSync('Not Synced'));
       handleApiError(error, dispatch as any);

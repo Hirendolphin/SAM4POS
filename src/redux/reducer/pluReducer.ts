@@ -4,6 +4,7 @@ import {
   getPLU,
   getPriceLevel,
   getStatusGroup,
+  getGroupList,
   setLastSync,
 } from '../actions/pluAction';
 import { PLUReducerState } from '../dataTypes';
@@ -21,6 +22,7 @@ const initialState: PLUReducerState = {
   fetching: false,
   statusGroup: [],
   priceLevel: [],
+  groupList: [],
   lastSync: null,
 };
 
@@ -99,6 +101,22 @@ const pluReducer = createReducer(initialState, builder => {
       state.fetching = false;
     })
     .addCase(getPriceLevel.rejected, state => {
+      state.fetching = false;
+    })
+    .addCase(getGroupList.pending, state => {
+      state.fetching = true;
+    })
+    .addCase(getGroupList.fulfilled, (state, action) => {
+      const payload = action?.payload;
+      if (payload?.status) {
+        const apiData = payload?.data || [];
+        state.groupList = [{ value: 0, label: 'None' }, ...apiData];
+      } else {
+        state.groupList = [];
+      }
+      state.fetching = false;
+    })
+    .addCase(getGroupList.rejected, state => {
       state.fetching = false;
     })
     .addCase(setLastSync, (state, action) => {

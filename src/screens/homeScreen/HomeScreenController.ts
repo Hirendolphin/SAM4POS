@@ -8,6 +8,7 @@ import {
   getPLU,
   setLastSync,
 } from '../../redux/actions/pluAction';
+import { getPosDetails } from '../../redux/actions/pluAction';
 import { getGroupList } from '../../redux/actions/pluAction';
 import usePosDetailsFlow from '../../services/posFlow';
 import { get, post, apiURLs } from '../../services/api';
@@ -76,32 +77,7 @@ const HomeScreenController = () => {
     try {
       setLoadingMessage('Please wait… retrieving PLU details.');
       setLoading(true);
-      const response = (await get(`${apiURLs?.posDetails}`)) as any;
-
-      if (response?.status) {
-        const now = new Date();
-
-        const day = now.getDate().toString().padStart(2, '0');
-        const month = now.toLocaleString('en-US', { month: 'short' });
-        const year = now.getFullYear();
-
-        let hours = now.getHours();
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-
-        hours = hours % 12 || 12; // convert to 12-hour format
-
-        const formattedDate = `${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
-
-        dispatch(setLastSync(formattedDate));
-
-        await Promise.all([
-          getpluAPI(1, false, ''),
-          dispatch(getPriceLevel()).unwrap(),
-          dispatch(getStatusGroup()).unwrap(),
-          getGroupListApi(),
-        ]);
-      }
+      await dispatch(getPosDetails()).unwrap();
     } catch (error: any) {
       dispatch(setLastSync('Not Synced'));
       handleApiError(error, dispatch as any);
@@ -127,7 +103,7 @@ const HomeScreenController = () => {
   const handleSavePLU = async (plu: any) => {
     try {
       setLoadingMessage('Adding PLU...');
-      setLoading(true);
+      // setLoading(true);
       const response = (await post(apiURLs?.addPlu, plu)) as any;
       showNotificationMessage(response?.data?.message);
       if (response?.data?.status) {
@@ -142,6 +118,7 @@ const HomeScreenController = () => {
         }, 500);
       }
     } catch (error) {
+      console.log('adding plue error', error.response);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401 || error.response?.status === 403) {
           dispatch(userForceLogout({ forcelogout: true }));

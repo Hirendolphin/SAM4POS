@@ -157,6 +157,7 @@ export type PLUReducerState = {
   limit: number;
   fetching: boolean;
   loadingMore: boolean;
+  groupList: StatusGroup[];
   statusGroup: StatusGroup[];
   priceLevel: StatusGroup[];
   lastSync: string | null;
