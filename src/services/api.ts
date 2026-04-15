@@ -100,6 +100,7 @@ type ApiUrls = {
   statusGroupList: string;
   pluList: string;
   pendingPluList: string;
+  pluSync: string;
   couponValidate: string;
   pluScan: string;
   checkPLU: string;
@@ -127,6 +128,7 @@ const apiURLs: ApiUrls = {
 
   pluList: 'plu/lists/',
   pendingPluList: 'plu/sync-history/',
+  pluSync: 'plu/sync/',
   couponValidate: 'coupon/validate/',
   pluScan: 'plu/scan/',
   checkPLU: 'plu/check-plu-code/',

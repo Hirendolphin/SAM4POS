@@ -4,7 +4,7 @@ import {
   handleAppStateFlags,
   showNotificationMessage,
 } from '../../screens/utils/helperFunction';
-import { apiURLs, get } from '../../services/api';
+import { apiURLs, get, post } from '../../services/api';
 import * as types from '../actionTypes';
 import { RootState } from '../store';
 import { userForceLogout } from './authAction';
@@ -31,6 +31,41 @@ export const getPLU = createAsyncThunk<
     };
   } catch (error: any) {
     console.log('error getPLU =>> ', error?.response);
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        dispatch(userForceLogout({ forcelogout: true }));
+      } else if (error.response?.data?.status === false) {
+        const eData = error?.response?.data;
+        const handled = handleAppStateFlags(eData, dispatch);
+        if (!handled && typeof error.response?.data?.error === 'string') {
+          showNotificationMessage(error.response.data.error);
+        }
+      }
+      return rejectWithValue(error.response?.data ?? {});
+    } else {
+      return rejectWithValue({ message: error.message ?? '' });
+    }
+  }
+});
+
+export const syncPLU = createAsyncThunk<
+  any,
+  {
+    select_all?: boolean | number;
+    exclude_ids?: number[];
+    ids?: number[];
+  },
+  { state: RootState }
+>(types.SYNC_PLU, async (requestData, { rejectWithValue, dispatch }) => {
+  try {
+    const payload = { ...requestData };
+
+    const response = await post(`${apiURLs.pluSync}`, payload);
+    console.log('response syncPLU =>> ', response);
+
+    return response?.data;
+  } catch (error: any) {
+    console.log('error syncPLU =>> ', error?.response);
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         dispatch(userForceLogout({ forcelogout: true }));

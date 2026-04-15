@@ -5,6 +5,7 @@ export const FORCELOGOUT = 'SAM4POS/auth/FORCELOGOUT';
 export const GET_SUBSCRIPTION = 'SAM4POS/subscription';
 export const GET_PLU = 'SAM4POS/pluList';
 export const GET_PENDING_PLU = 'SAM4POS/pendingPluList';
+export const SYNC_PLU = 'SAM4POS/pluSync';
 export const GET_STATUS_GROUP = 'SAM4POS/StatusGroup';
 export const GET_PRICE_LEVEL = 'SAM4POS/Pricelevel';
 

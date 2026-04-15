@@ -2,13 +2,15 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { showNotificationMessage } from '../utils/helperFunction';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { getPendingPLU } from '../../redux/actions/pluAction';
+import { getPendingPLU, syncPLU } from '../../redux/actions/pluAction';
 import { PLUItem } from '../../redux/dataTypes';
 
 const SyncManagementController = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
-  const { pendingPluList, fetching, loadingMore } = useAppSelector(state => state.pendingPlu);
+  const { pendingPluList, fetching, loadingMore } = useAppSelector(
+    state => state.pendingPlu,
+  );
 
   const [localLoading, setLocalLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,7 +37,7 @@ const SyncManagementController = () => {
         limit: LIMIT,
         search: debouncedSearch,
         isLoadMore: currentPage > 1,
-      })
+      }),
     );
   }, [currentPage, debouncedSearch, dispatch]);
 
@@ -53,7 +55,7 @@ const SyncManagementController = () => {
 
   const handleToggleItem = useCallback((id: number) => {
     setSelectedIds(prev =>
-      prev.includes(id) ? prev.filter(selId => selId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter(selId => selId !== id) : [...prev, id],
     );
   }, []);
 
@@ -65,7 +67,7 @@ const SyncManagementController = () => {
         setSelectedIds([]);
       }
     },
-    [pendingPluList.results]
+    [pendingPluList.results],
   );
 
   const mappedPendingPluList = useMemo(
@@ -76,7 +78,7 @@ const SyncManagementController = () => {
         selected: selectedIds.includes(item.id),
       })),
     }),
-    [pendingPluList, selectedIds]
+    [pendingPluList, selectedIds],
   );
 
   const isAllSelected =
@@ -89,22 +91,40 @@ const SyncManagementController = () => {
     if (itemsToSync.length === 0) return;
 
     console.log('itemsToSync =>> ', itemsToSync);
+    try {
+      setLocalLoading(true);
 
-    // setLocalLoading(true);
-    // setTimeout(() => {
-    //   setLocalLoading(false);
-    //   showNotificationMessage(`Successfully synced ${itemsToSync.length} PLU items to POS.`);
-    //   setSelectedIds([]);
-    //   setCurrentPage(1);
-    //   dispatch(
-    //     getPendingPLU({
-    //       page: 1,
-    //       limit: LIMIT,
-    //       search: debouncedSearch,
-    //       isLoadMore: false,
-    //     })
-    //   );
-    // }, 1500);
+      const payload = {
+        select_all: isAllSelected,
+        ids: isAllSelected ? [] : itemsToSync,
+      } as any;
+
+      const resAction: any = await dispatch(syncPLU(payload));
+      setLocalLoading(false);
+
+      const res = resAction?.payload ?? {};
+      if (res && res.status === true) {
+        showNotificationMessage(
+          `Successfully synced ${itemsToSync.length} PLU items to POS.`,
+        );
+        setSelectedIds([]);
+        setCurrentPage(1);
+        dispatch(
+          getPendingPLU({
+            page: 1,
+            limit: LIMIT,
+            search: debouncedSearch,
+            isLoadMore: false,
+          }),
+        );
+      } else {
+        const err = res?.error || 'Failed to sync PLU items.';
+        showNotificationMessage(err);
+      }
+    } catch (error) {
+      setLocalLoading(false);
+      showNotificationMessage('Unable to sync PLU items.');
+    }
   };
 
   return {

@@ -2,9 +2,17 @@ import { useState, useEffect } from 'react';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { useAppDispatch } from '../../redux/hooks';
 import { Routes } from '../../constants';
-import { getPriceLevel, getStatusGroup, getPLU, setLastSync } from '../../redux/actions/pluAction';
+import {
+  getPriceLevel,
+  getStatusGroup,
+  getPLU,
+  setLastSync,
+} from '../../redux/actions/pluAction';
 import { get, post, apiURLs } from '../../services/api';
-import { showNotificationMessage, handleAppStateFlags } from '../utils/helperFunction';
+import {
+  showNotificationMessage,
+  handleAppStateFlags,
+} from '../utils/helperFunction';
 import { userForceLogout } from '../../redux/actions/authAction';
 import axios from 'axios';
 
@@ -39,7 +47,7 @@ const HomeScreenController = () => {
     try {
       setLoadingMessage('Please wait… retrieving PLU details.');
       setLoading(true);
-      const response = await get(`${apiURLs?.posDetails}`) as any;
+      const response = (await get(`${apiURLs?.posDetails}`)) as any;
 
       if (response?.status) {
         const now = new Date();
@@ -86,7 +94,7 @@ const HomeScreenController = () => {
 
   const getGroupListApi = async () => {
     try {
-      const response = await get(`${apiURLs.groupList}`) as any;
+      const response = (await get(`${apiURLs.groupList}`)) as any;
       if (response?.data?.status) {
         const apiData = response?.data?.data || [];
         const data = [{ value: 0, label: 'None' }, ...apiData];
@@ -105,7 +113,7 @@ const HomeScreenController = () => {
     try {
       setLoadingMessage('Adding PLU...');
       setLoading(true);
-      const response = await post(apiURLs?.addPlu, plu) as any;
+      const response = (await post(apiURLs?.addPlu, plu)) as any;
       showNotificationMessage(response?.data?.message);
       if (response?.data?.status) {
         setAddModalVisible(false);
