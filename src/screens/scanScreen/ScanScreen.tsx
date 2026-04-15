@@ -97,7 +97,7 @@ export default function ScanScreen() {
   const [loading, setLoading] = useState(false);
   const [permissionModalVisible, setPermissionModalVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [groupList, setGroupList] = useState<any[]>([]);
+  const groupList: any[] = useAppSelector(state => state?.plu?.groupList ?? []);
 
   const { barcodeSettings }: any = useAppSelector(state => ({
     barcodeSettings: state?.barcodeSetting || {},
@@ -160,13 +160,7 @@ export default function ScanScreen() {
 
   const getGroupListApi = async () => {
     try {
-      const res: any = await dispatch(getGroupList()).unwrap();
-      if (res?.status) {
-        const apiData = res?.data || [];
-        const data = [{ value: 0, label: 'None' }, ...apiData];
-        setGroupList(data);
-        console.log('groupList =>> ', data);
-      }
+      await dispatch(getGroupList()).unwrap();
     } catch (error: any) {
       handleApiError(error, dispatch as any);
     }
@@ -219,7 +213,9 @@ export default function ScanScreen() {
 
   const handleSavePLU = async (plu: any) => {
     try {
-      setLoading(true);
+      if (Platform.OS == 'android') {
+        setLoading(true);
+      }
       const response = await post(apiURLs?.addPlu, plu);
       showNotificationMessage(response?.data?.message);
       if (response?.data?.status) {

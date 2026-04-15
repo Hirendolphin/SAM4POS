@@ -23,7 +23,7 @@ const initialState: PLUReducerState = {
   statusGroup: [],
   priceLevel: [],
   groupList: [],
-  lastSync: null,
+  lastSync: 'Not Synced',
 };
 
 const pluReducer = createReducer(initialState, builder => {

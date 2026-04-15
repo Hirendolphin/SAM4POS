@@ -100,7 +100,9 @@ const SyncManagementController = () => {
       } as any;
 
       const resAction: any = await dispatch(syncPLU(payload));
-      setLocalLoading(false);
+      console.log('resAction syync ==>>', resAction);
+
+      // setLocalLoading(false);
 
       const res = resAction?.payload ?? {};
       if (res && res.status === true) {
@@ -124,6 +126,8 @@ const SyncManagementController = () => {
     } catch (error) {
       setLocalLoading(false);
       showNotificationMessage('Unable to sync PLU items.');
+    } finally {
+      setLocalLoading(false);
     }
   };
 

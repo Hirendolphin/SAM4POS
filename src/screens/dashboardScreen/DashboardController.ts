@@ -25,6 +25,7 @@ import {
   handleApiError,
 } from '../utils/helperFunction';
 import { getActiveSubscription } from '../../redux/actions/SubscriptionAction';
+import { Platform } from 'react-native';
 
 const DashboardController = () => {
   const dispatch = useAppDispatch();
@@ -35,7 +36,7 @@ const DashboardController = () => {
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedPLU, setSelectedPLU] = useState<PLUItem | null>(null);
-  const [groupList, setGroupList] = useState<any[]>([]);
+  const groupList: any[] = useAppSelector(state => state?.plu?.groupList ?? []);
   const { pluList, fetching, currentPage, loadingMore, lastSync } =
     useAppSelector(state => state?.plu || []);
 
@@ -44,6 +45,7 @@ const DashboardController = () => {
       setSearch('');
     }, []),
   );
+
   useEffect(() => {
     (async () => {
       try {
@@ -101,13 +103,7 @@ const DashboardController = () => {
 
   const getGroupListApi = async () => {
     try {
-      const res: any = await dispatch(getGroupList()).unwrap();
-      if (res?.status) {
-        const apiData = res?.data || [];
-        const data = [{ value: 0, label: 'None' }, ...apiData];
-        setGroupList(data);
-        console.log('groupList =>> ', data);
-      }
+      await dispatch(getGroupList()).unwrap();
     } catch (error: any) {
       handleApiError(error, dispatch as any);
     }
@@ -165,7 +161,9 @@ const DashboardController = () => {
 
   const handleSavePLU = async (plu: any) => {
     try {
-      setLoading(true);
+      if (Platform.OS == 'android') {
+        setLoading(true);
+      }
       const response = await post(apiURLs?.addPlu, plu);
       console.log('response =>> ', response);
       showNotificationMessage(response?.data?.message);
@@ -183,10 +181,14 @@ const DashboardController = () => {
   };
 
   const handleDeletePLU = async () => {
-    setLoading(true);
+    if (Platform.OS == 'android') {
+      setLoading(true);
+    }
     try {
+      console.log('delete selected plu ', selectedPLU);
+
       const response = await deleteApi(
-        `${apiURLs.deletePlu + selectedPLU?.plu_id}/`,
+        `${apiURLs.deletePlu + selectedPLU?.id}/`,
       );
       showNotificationMessage(response?.data?.message);
       if (response?.data?.status) {

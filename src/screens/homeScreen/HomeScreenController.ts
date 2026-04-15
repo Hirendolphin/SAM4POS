@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAppSelector } from '../../redux/hooks';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { useAppDispatch } from '../../redux/hooks';
 import { Routes } from '../../constants';
@@ -19,6 +20,7 @@ import {
 import { handleApiError } from '../utils/helperFunction';
 import { userForceLogout } from '../../redux/actions/authAction';
 import axios from 'axios';
+import { Platform } from 'react-native';
 
 const HomeScreenController = () => {
   const navigation = useNavigation();
@@ -26,7 +28,7 @@ const HomeScreenController = () => {
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
-  const [groupList, setGroupList] = useState<any[]>([]);
+  const groupList: any[] = useAppSelector(state => state?.plu?.groupList ?? []);
   const { trigger, Modal } = usePosDetailsFlow();
 
   // helper APIs
@@ -89,12 +91,7 @@ const HomeScreenController = () => {
 
   const getGroupListApi = async () => {
     try {
-      const res: any = await dispatch(getGroupList()).unwrap();
-      if (res?.status) {
-        const apiData = res?.data || [];
-        const data = [{ value: 0, label: 'None' }, ...apiData];
-        setGroupList(data);
-      }
+      await dispatch(getGroupList()).unwrap();
     } catch (error: any) {
       handleApiError(error, dispatch as any);
     }
@@ -104,6 +101,9 @@ const HomeScreenController = () => {
     try {
       setLoadingMessage('Adding PLU...');
       // setLoading(true);
+      if (Platform.OS == 'android') {
+        setLoading(true);
+      }
       const response = (await post(apiURLs?.addPlu, plu)) as any;
       showNotificationMessage(response?.data?.message);
       if (response?.data?.status) {

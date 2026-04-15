@@ -59,7 +59,7 @@ const EditPLUController = () => {
 
   const [groupModal, setGroupModal] = useState(false);
   const [groupTitle, setGroupTitle] = useState('');
-  const [groupList, setGroupList] = useState([]);
+  const groupList: any[] = useAppSelector(state => state?.plu?.groupList ?? []);
 
   const [activeLinkKey, setActiveLinkKey] = useState(null);
 
@@ -108,12 +108,7 @@ const EditPLUController = () => {
   const getGroupListApi = async () => {
     setIsLoading(true);
     try {
-      const res: any = await dispatch(getGroupList()).unwrap();
-      if (res?.status) {
-        const apiData = res?.data || [];
-        const data = [{ value: 0, label: 'None' }, ...apiData];
-        setGroupList(data);
-      }
+      await dispatch(getGroupList()).unwrap();
     } catch (error: any) {
       handleApiError(error, dispatch as any);
     } finally {
