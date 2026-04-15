@@ -17,6 +17,7 @@ export default function HomeScreen() {
     openAddModal,
     navigateToDashboard,
     navigateToSyncManagement,
+    Modal,
   } = HomeScreenController();
 
   return (
@@ -26,9 +27,15 @@ export default function HomeScreen() {
       <Pressable style={styles.card} onPress={navigateToDashboard}>
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>Search, Edit and Delete PLU</Text>
-          <Text style={styles.cardSubtitle}>Search, modify and delete existing products</Text>
+          <Text style={styles.cardSubtitle}>
+            Search, modify and delete existing products
+          </Text>
         </View>
-        <Image source={Icons.rightArrow} style={styles.iconImage} resizeMode='contain' />
+        <Image
+          source={Icons.rightArrow}
+          style={styles.iconImage}
+          resizeMode="contain"
+        />
       </Pressable>
 
       <Pressable style={styles.card} onPress={openAddModal}>
@@ -56,7 +63,13 @@ export default function HomeScreen() {
         />
       )}
 
-      {loading && <ProgressModal ismodelVisible={loading} label={loadingMessage || "Loading"} />}
+      {loading && (
+        <ProgressModal
+          ismodelVisible={loading}
+          label={loadingMessage || 'Loading'}
+        />
+      )}
+      {Modal}
     </View>
   );
 }

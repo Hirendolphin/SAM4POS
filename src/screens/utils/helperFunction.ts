@@ -2,6 +2,8 @@ import Toast from 'react-native-simple-toast';
 import { Platform } from 'react-native';
 import { forceupdate, maintenanceMode } from '../../redux/actions/authAction';
 import { Dispatch } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { userForceLogout } from '../../redux/actions/authAction';
 
 export const showNotificationMessage = (message: string) => {
   if (Platform.OS == 'android') {
@@ -121,4 +123,19 @@ export const handleAppStateFlags = (data: any, dispatch: Dispatch): boolean => {
   }
 
   return triggered;
+};
+
+export const handleApiError = (error: any, dispatch: Dispatch) => {
+  if (axios.isAxiosError(error)) {
+    console.log('error =>> ', error?.response);
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      dispatch(userForceLogout({ forcelogout: true } as any));
+    } else if (error.response?.data?.status === false) {
+      const eData = error?.response?.data;
+      const handled = handleAppStateFlags(eData, dispatch);
+      if (!handled && typeof error.response?.data?.error === 'string') {
+        showNotificationMessage(error.response.data.error);
+      }
+    }
+  }
 };

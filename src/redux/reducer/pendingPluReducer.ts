@@ -1,8 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { userLogout } from '../actions/authAction';
-import {
-  getPendingPLU,
-} from '../actions/pluAction';
+import { getPendingPLU } from '../actions/pluAction';
+import { clearPendingPlu } from '../actions/pluAction';
 import { PendingPLUReducerState } from '../dataTypes';
 
 const initialState: PendingPLUReducerState = {
@@ -72,6 +71,16 @@ const pendingPluReducer = createReducer(initialState, builder => {
         previous: null,
         results: [],
       };
+      state.currentPage = 1;
+    })
+    .addCase(clearPendingPlu, state => {
+      state.pendingPluList = {
+        count: 0,
+        next: null,
+        previous: null,
+        results: [],
+      };
+      state.fetching = false;
       state.currentPage = 1;
     });
 });

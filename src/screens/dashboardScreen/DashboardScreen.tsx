@@ -48,7 +48,9 @@ export default function DashboardScreen() {
     setSearch,
     lastSync,
     getposDetails,
-    groupList
+    trigger,
+    Modal,
+    groupList,
   } = DashboardController();
 
   return (
@@ -73,7 +75,7 @@ export default function DashboardScreen() {
             </Text>
             <PrimaryButton
               title="Manage Subscription"
-              onPress={() => { }}
+              onPress={() => {}}
               style={styles.manageBtn}
             />
           </View>
@@ -82,7 +84,10 @@ export default function DashboardScreen() {
         {/* Last Sync Section */}
         <View style={styles.lastSyncContainer}>
           <Text style={styles.lastSyncText}>Last Sync: {lastSync}</Text>
-          <Pressable style={styles.refreshButton} onPress={getposDetails}>
+          <Pressable
+            style={styles.refreshButton}
+            onPress={() => trigger(getposDetails)}
+          >
             <Image source={Icons.refresh} style={styles.refreshIcon} />
           </Pressable>
         </View>
@@ -114,13 +119,13 @@ export default function DashboardScreen() {
             />
           )}
           contentContainerStyle={{ paddingBottom: moderateScale(200) }}
-          ListEmptyComponent={<EmptyListComponent message="No PLU data Found" />}
+          ListEmptyComponent={
+            <EmptyListComponent message="No PLU data Found" />
+          }
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={loadingMore ? <ActivityIndicator /> : null}
         />
-
-
 
         {/* Modals */}
         {!loading && addModalVisible && (
@@ -154,13 +159,15 @@ export default function DashboardScreen() {
                 fetching
                   ? 'Getting PLU Products'
                   : deleteModalVisible
-                    ? 'Deleting PLU'
-                    : addModalVisible
-                      ? 'Adding PLU'
-                      : 'Please wait… retrieving PLU details.'
+                  ? 'Deleting PLU'
+                  : addModalVisible
+                  ? 'Adding PLU'
+                  : 'Please wait… retrieving PLU details.'
               }
             />
           ))}
+        {/* Pending changes modal (pos details flow) */}
+        {Modal}
       </View>
       {/* Add PLU Button */}
       <Pressable

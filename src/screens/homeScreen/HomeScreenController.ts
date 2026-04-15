@@ -8,11 +8,14 @@ import {
   getPLU,
   setLastSync,
 } from '../../redux/actions/pluAction';
+import { getGroupList } from '../../redux/actions/pluAction';
+import usePosDetailsFlow from '../../services/posFlow';
 import { get, post, apiURLs } from '../../services/api';
 import {
   showNotificationMessage,
   handleAppStateFlags,
 } from '../utils/helperFunction';
+import { handleApiError } from '../utils/helperFunction';
 import { userForceLogout } from '../../redux/actions/authAction';
 import axios from 'axios';
 
@@ -23,9 +26,35 @@ const HomeScreenController = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [groupList, setGroupList] = useState<any[]>([]);
+  const { trigger, Modal } = usePosDetailsFlow();
+
+  // helper APIs
+  const getStatusGroupApi = async () => {
+    await dispatch(getStatusGroup()).unwrap();
+  };
+
+  const getPriceLevelListApi = async () => {
+    await dispatch(getPriceLevel()).unwrap();
+  };
 
   useEffect(() => {
-    // getposDetails();
+    // trigger the unified flow before getting pos details
+    trigger(getposDetails);
+  }, []);
+
+  // on screen visible, ensure mandatory helper APIs are fetched
+  useEffect(() => {
+    (async () => {
+      try {
+        await Promise.all([
+          getStatusGroupApi(),
+          getPriceLevelListApi(),
+          getGroupListApi(),
+        ]);
+      } catch (e) {
+        /* errors handled in helper via handleApiError */
+      }
+    })();
   }, []);
 
   const getpluAPI = async (
@@ -75,17 +104,7 @@ const HomeScreenController = () => {
       }
     } catch (error: any) {
       dispatch(setLastSync('Not Synced'));
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        } else if (error.response?.data?.status === false) {
-          const eData = error?.response?.data;
-          const handled = handleAppStateFlags(eData, dispatch);
-          if (!handled && typeof error.response?.data?.error === 'string') {
-            showNotificationMessage(error.response.data.error);
-          }
-        }
-      }
+      handleApiError(error, dispatch as any);
     } finally {
       setLoading(false);
       setLoadingMessage('');
@@ -94,18 +113,14 @@ const HomeScreenController = () => {
 
   const getGroupListApi = async () => {
     try {
-      const response = (await get(`${apiURLs.groupList}`)) as any;
-      if (response?.data?.status) {
-        const apiData = response?.data?.data || [];
+      const res: any = await dispatch(getGroupList()).unwrap();
+      if (res?.status) {
+        const apiData = res?.data || [];
         const data = [{ value: 0, label: 'None' }, ...apiData];
         setGroupList(data);
       }
     } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        }
-      }
+      handleApiError(error, dispatch as any);
     }
   };
 
@@ -167,6 +182,7 @@ const HomeScreenController = () => {
   };
 
   return {
+    Modal,
     addModalVisible,
     setAddModalVisible,
     loading,

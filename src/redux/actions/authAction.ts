@@ -7,6 +7,7 @@ import { LoginResultType } from '../dataTypes';
 import {
   handleAppStateFlags,
   showNotificationMessage,
+  handleApiError,
 } from '../../screens/utils/helperFunction';
 
 type Loginarg = {
@@ -40,16 +41,8 @@ export const userLogin = createAsyncThunk<
     if (arg?.client_ip?.trim() && arg?.client_port?.trim()) {
       dispatch(userLogout());
     }
+    handleApiError(error, dispatch as any);
     if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        dispatch(userForceLogout({ forcelogout: true }));
-      } else if (error.response?.data?.status === false) {
-        const eData = error?.response?.data;
-        const handled = handleAppStateFlags(eData, dispatch);
-        if (!handled && typeof error.response?.data?.error === 'string') {
-          showNotificationMessage(error.response.data.error);
-        }
-      }
       return rejectWithValue(error.response?.data ?? {});
     } else {
       return rejectWithValue({ message: error.message ?? '' });
@@ -73,16 +66,8 @@ export const getVersionDetails = createAsyncThunk<
     });
     return response?.data;
   } catch (error: any) {
+    handleApiError(error, dispatch as any);
     if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        dispatch(userForceLogout({ forcelogout: true }));
-      } else if (error.response?.data?.status === false) {
-        const eData = error?.response?.data;
-        const handled = handleAppStateFlags(eData, dispatch);
-        if (!handled && typeof error.response?.data?.error === 'string') {
-          showNotificationMessage(error.response.data.error);
-        }
-      }
       return rejectWithValue(error.response?.data ?? {});
     } else {
       return rejectWithValue({ message: error.message ?? '' });

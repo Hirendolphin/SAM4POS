@@ -7,24 +7,28 @@ import {
   getStatusGroup,
   setLastSync,
 } from '../../redux/actions/pluAction';
+import { getGroupList } from '../../redux/actions/pluAction';
 import { PLUItem } from '../../redux/dataTypes';
 import {
   CommonActions,
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
+import usePosDetailsFlow from '../../services/posFlow';
 import { Routes } from '../../constants';
 import { apiURLs, deleteApi, get, post } from '../../services/api';
 import { userForceLogout } from '../../redux/actions/authAction';
 import {
   handleAppStateFlags,
   showNotificationMessage,
+  handleApiError,
 } from '../utils/helperFunction';
 import { getActiveSubscription } from '../../redux/actions/SubscriptionAction';
 
 const DashboardController = () => {
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
+  const { trigger, Modal } = usePosDetailsFlow();
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState<string>('');
   const [addModalVisible, setAddModalVisible] = useState(false);
@@ -43,12 +47,12 @@ const DashboardController = () => {
   useFocusEffect(
     useCallback(() => {
       activeSubscription();
-    }, [])
+    }, []),
   );
 
   const activeSubscription = async () => {
     await dispatch(getActiveSubscription()).unwrap();
-  }
+  };
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -73,10 +77,43 @@ const DashboardController = () => {
     }
   };
 
+  const getStatusGroupApi = async () => {
+    await dispatch(getStatusGroup()).unwrap();
+  };
+
+  const getPriceLevelListApi = async () => {
+    await dispatch(getPriceLevel()).unwrap();
+  };
+
+  const getGroupListApi = async () => {
+    try {
+      const res: any = await dispatch(getGroupList()).unwrap();
+      if (res?.status) {
+        const apiData = res?.data || [];
+        const data = [{ value: 0, label: 'None' }, ...apiData];
+        setGroupList(data);
+        console.log('groupList =>> ', data);
+      }
+    } catch (error: any) {
+      handleApiError(error, dispatch as any);
+    }
+  };
+
   useEffect(() => {
-    // getposDetails();
-    // getpluAPI(1, false, '');
-    getGroupListApi();
+    // trigger the unified pending-check flow before getting pos details
+    (async () => {
+      try {
+        trigger(getposDetails);
+        // on visible, fetch mandatory helper APIs
+        await Promise.all([
+          getStatusGroupApi(),
+          getPriceLevelListApi(),
+          getGroupListApi(),
+        ]);
+      } catch (e) {
+        /* handled by handleApiError */
+      }
+    })();
   }, []);
 
   const { userDetails }: any = useAppSelector(state => ({
@@ -132,49 +169,12 @@ const DashboardController = () => {
       }
     } catch (error: any) {
       dispatch(setLastSync('Not Synced'));
-      if (axios.isAxiosError(error)) {
-        console.log('error =>> ', error?.response);
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        } else if (error.response?.data?.status === false) {
-          const eData = error?.response?.data;
-          const handled = handleAppStateFlags(eData, dispatch);
-          if (!handled && typeof error.response?.data?.error === 'string') {
-            showNotificationMessage(error.response.data.error);
-          }
-        }
-      }
+      handleApiError(error, dispatch as any);
     } finally {
       setLoading(false);
     }
   };
-
-  const getGroupListApi = async () => {
-    // setIsLoading(true);
-    try {
-      const response = await get(`${apiURLs.groupList}`);
-      if (response?.data?.status) {
-        const apiData = response?.data?.data || [];
-        const data = [{ value: 0, label: 'None' }, ...apiData];
-        setGroupList(data);
-        console.log('groupList =>> ', data);
-      }
-    } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        } else if (error.response?.data?.status === false) {
-          const eData = error?.response?.data;
-          const handled = handleAppStateFlags(eData, dispatch);
-          if (!handled && typeof error.response?.data?.error === 'string') {
-            showNotificationMessage(error.response.data.error);
-          }
-        }
-      }
-    } finally {
-      // setIsLoading(false);
-    }
-  };
+  // single getGroupListApi is defined above
 
   const handleSavePLU = async (plu: any) => {
     try {
@@ -189,18 +189,7 @@ const DashboardController = () => {
         }, 500);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log('error =>> ', error);
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        } else if (error.response?.data?.status === false) {
-          const eData = error?.response?.data;
-          const handled = handleAppStateFlags(eData, dispatch);
-          if (!handled && typeof error.response?.data?.error === 'string') {
-            showNotificationMessage(error.response.data.error);
-          }
-        }
-      }
+      handleApiError(error, dispatch as any);
     } finally {
       setLoading(false);
     }
@@ -222,18 +211,7 @@ const DashboardController = () => {
         }, 500);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log('error =>> ', error);
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        } else if (error.response?.data?.status === false) {
-          const eData = error?.response?.data;
-          const handled = handleAppStateFlags(eData, dispatch);
-          if (!handled && typeof error.response?.data?.error === 'string') {
-            showNotificationMessage(error.response.data.error);
-          }
-        }
-      }
+      handleApiError(error, dispatch as any);
     } finally {
       setLoading(false);
     }
@@ -278,7 +256,9 @@ const DashboardController = () => {
     setSearch,
     lastSync,
     getposDetails,
-    groupList
+    trigger,
+    Modal,
+    groupList,
   };
 };
 

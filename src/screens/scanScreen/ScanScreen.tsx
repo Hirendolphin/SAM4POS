@@ -53,6 +53,7 @@ import {
   handleAppStateFlags,
   processBarcode,
   showNotificationMessage,
+  handleApiError,
 } from '../utils/helperFunction';
 import { userForceLogout } from '../../redux/actions/authAction';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -61,6 +62,7 @@ import {
   getPriceLevel,
   getStatusGroup,
 } from '../../redux/actions/pluAction';
+import { getGroupList } from '../../redux/actions/pluAction';
 import ProgressModal from '../../components/ProgressModal';
 const isAndroid15 = Platform.OS === 'android' && Platform.Version >= 35;
 type TabNavigationProp = BottomTabNavigationProp<any>;
@@ -157,29 +159,16 @@ export default function ScanScreen() {
   };
 
   const getGroupListApi = async () => {
-    // setIsLoading(true);
     try {
-      const response = await get(`${apiURLs.groupList}`);
-      if (response?.data?.status) {
-        const apiData = response?.data?.data || [];
+      const res: any = await dispatch(getGroupList()).unwrap();
+      if (res?.status) {
+        const apiData = res?.data || [];
         const data = [{ value: 0, label: 'None' }, ...apiData];
         setGroupList(data);
         console.log('groupList =>> ', data);
       }
     } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        } else if (error.response?.data?.status === false) {
-          const eData = error?.response?.data;
-          const handled = handleAppStateFlags(eData, dispatch);
-          if (!handled && typeof error.response?.data?.error === 'string') {
-            showNotificationMessage(error.response.data.error);
-          }
-        }
-      }
-    } finally {
-      // setIsLoading(false);
+      handleApiError(error, dispatch as any);
     }
   };
 
@@ -247,17 +236,7 @@ export default function ScanScreen() {
         }, 500);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        } else if (error.response?.data?.status === false) {
-          const eData = error?.response?.data;
-          const handled = handleAppStateFlags(eData, dispatch);
-          if (!handled && typeof error.response?.data?.error === 'string') {
-            showNotificationMessage(error.response.data.error);
-          }
-        }
-      }
+      handleApiError(error, dispatch as any);
     } finally {
       setLoading(false);
       setBarcode('');

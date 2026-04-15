@@ -7,20 +7,24 @@ import rootReducer from './reducer';
 const transformFetchings = createTransform(
   (inboundState: any, key) => {
     const { fetching, loadingMore, ...rest } = inboundState;
-    return { ...rest, fetching: false, loadingMore: false, };
+    return { ...rest, fetching: false, loadingMore: false };
   },
-  (outboundState) => outboundState
+  outboundState => outboundState,
 );
 
 const persistConfig = {
   key: 'root',
   version: 1,
   storage: AsyncStorage,
-  whitelist: ['auth', 'subscription', 'plu', 'barcodeSetting', 'pendingPlu'],
+  whitelist: ['auth', 'subscription', 'plu', 'barcodeSetting'],
+  blacklist: ['pendingPlu'],
   transforms: [transformFetchings],
 };
 
-const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(persistConfig, rootReducer);
+const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(
+  persistConfig,
+  rootReducer,
+);
 
 const store = configureStore({
   reducer: persistedReducer as any,

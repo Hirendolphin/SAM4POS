@@ -18,7 +18,9 @@ import { apiURLs, get, post } from '../../services/api';
 import {
   handleAppStateFlags,
   showNotificationMessage,
+  handleApiError,
 } from '../utils/helperFunction';
+import { getGroupList } from '../../redux/actions/pluAction';
 
 const EditPLUController = () => {
   const route = useRoute<any>();
@@ -51,7 +53,9 @@ const EditPLUController = () => {
 
   const [statusGroupModal, setStatusGroupModal] = useState(false);
   const [statusGroupList, setStatusGroupList] = useState(statusGroup);
-  const [selectedStatusGroup, setSelectedStatusGroup] = useState(pluProductData?.id_plu_status_group ?? "");
+  const [selectedStatusGroup, setSelectedStatusGroup] = useState(
+    pluProductData?.id_plu_status_group ?? '',
+  );
 
   const [groupModal, setGroupModal] = useState(false);
   const [groupTitle, setGroupTitle] = useState('');
@@ -78,7 +82,9 @@ const EditPLUController = () => {
   useEffect(() => {
     if (statusGroup?.length > 0) {
       setStatusGroupList(statusGroup);
-      setSelectedStatusGroup(pluProductData?.id_plu_status_group ?? statusGroup[0]?.value);
+      setSelectedStatusGroup(
+        pluProductData?.id_plu_status_group ?? statusGroup[0]?.value,
+      );
     }
   }, [statusGroup]);
 
@@ -102,26 +108,14 @@ const EditPLUController = () => {
   const getGroupListApi = async () => {
     setIsLoading(true);
     try {
-      const response = await get(`${apiURLs.groupList}`);
-      if (response?.data?.status) {
-        console.log('response groupList ==>> ', response);
-        const apiData = response?.data?.data || [];
+      const res: any = await dispatch(getGroupList()).unwrap();
+      if (res?.status) {
+        const apiData = res?.data || [];
         const data = [{ value: 0, label: 'None' }, ...apiData];
         setGroupList(data);
       }
     } catch (error: any) {
-      console.log('error groupList ==>> ', error);
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        } else if (error.response?.data?.status === false) {
-          const eData = error?.response?.data;
-          const handled = handleAppStateFlags(eData, dispatch);
-          if (!handled && typeof error.response?.data?.error === 'string') {
-            showNotificationMessage(error.response.data.error);
-          }
-        }
-      }
+      handleApiError(error, dispatch as any);
     } finally {
       setIsLoading(false);
     }
@@ -153,10 +147,10 @@ const EditPLUController = () => {
   // for EDIT – show unused + current item's level
   const levelListForEdit = editingItem
     ? priceLevels.filter(
-      l =>
-        l.value === editingItem.id_price_level ||
-        !usedLevels.includes(l.value),
-    )
+        l =>
+          l.value === editingItem.id_price_level ||
+          !usedLevels.includes(l.value),
+      )
     : priceLevels;
 
   const addPrice = () => {
@@ -257,7 +251,7 @@ const EditPLUController = () => {
       id_group3: groupLinks.link3 || 0,
     };
 
-    console.log("payload ===> ", payload);
+    console.log('payload ===> ', payload);
 
     setIsLoading(true);
     try {
@@ -270,19 +264,8 @@ const EditPLUController = () => {
         }, 500);
       }
     } catch (error) {
-      console.log("update plu==?>", error.response);
-
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        } else if (error.response?.data?.status === false) {
-          const eData = error?.response?.data;
-          const handled = handleAppStateFlags(eData, dispatch);
-          if (!handled && typeof error.response?.data?.error === 'string') {
-            showNotificationMessage(error.response.data.error);
-          }
-        }
-      }
+      console.log('update plu==?>', error.response);
+      handleApiError(error, dispatch as any);
     } finally {
       setIsLoading(false);
     }

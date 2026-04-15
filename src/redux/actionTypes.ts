@@ -20,3 +20,4 @@ export const GET_ACTIVE_SUBSCRIPTION = 'SAM4POS/activeSubscription';
 export const SET_BARCODE_SETTINGS = 'barcodeSettings/setAll';
 export const UPDATE_BARCODE_SETTING = 'barcodeSettings/updateOne';
 export const RESET_BARCODE_SETTINGS = 'barcodeSettings/reset';
+export const CLEAR_PENDING_PLU = 'SAM4POS/clearPendingPlu';

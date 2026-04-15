@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import {
   handleAppStateFlags,
   showNotificationMessage,
+  handleApiError,
 } from '../utils/helperFunction';
 import { apiURLs, post } from '../../services/api';
 import axios from 'axios';
@@ -185,21 +186,11 @@ const SubscriptionController = () => {
         );
       }
     } catch (error) {
-      console.log("error.response ===> ", error.response);
+      console.log('error.response ===> ', error.response);
       setTimeout(() => {
         setIsSubscribing(false);
       }, 500);
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          dispatch(userForceLogout({ forcelogout: true }));
-        } else if (error.response?.data?.status === false) {
-          const eData = error?.response?.data;
-          const handled = handleAppStateFlags(eData, dispatch);
-          if (!handled && typeof error.response?.data?.error === 'string') {
-            showNotificationMessage(error.response.data.error);
-          }
-        }
-      }
+      handleApiError(error, dispatch as any);
     } finally {
       setIsSubscribing(false);
     }
