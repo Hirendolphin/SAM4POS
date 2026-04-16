@@ -158,6 +158,14 @@ const HomeScreenController = () => {
     );
   };
 
+  const navigateToScan = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: Routes.scan,
+      }),
+    );
+  };
+
   return {
     Modal,
     addModalVisible,
@@ -169,6 +177,7 @@ const HomeScreenController = () => {
     openAddModal,
     navigateToDashboard,
     navigateToSyncManagement,
+    navigateToScan,
   };
 };
 

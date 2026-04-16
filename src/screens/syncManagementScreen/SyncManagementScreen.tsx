@@ -24,6 +24,7 @@ export default function SyncManagementScreen() {
     handleLoadMore,
     search,
     setSearch,
+    loadingMessage,
   } = SyncManagementController();
 
   console.log('pendingPluList =>> ', pendingPluList);
@@ -90,7 +91,7 @@ export default function SyncManagementScreen() {
         </View>
       )}
 
-      {loading && <ProgressModal ismodelVisible={loading} label="Syncing selected items..." />}
+      {loading && <ProgressModal ismodelVisible={loading} label={loadingMessage || "Please wait..."} />}
     </View>
   );
 }

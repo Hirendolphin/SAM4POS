@@ -2,8 +2,13 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { showNotificationMessage } from '../utils/helperFunction';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { getPendingPLU, syncPLU } from '../../redux/actions/pluAction';
+import {
+  getPendingPLU,
+  syncPLU,
+  getPosDetails,
+} from '../../redux/actions/pluAction';
 import { PLUItem } from '../../redux/dataTypes';
+import { Platform } from 'react-native';
 
 const SyncManagementController = () => {
   const navigation = useNavigation();
@@ -13,6 +18,7 @@ const SyncManagementController = () => {
   );
 
   const [localLoading, setLocalLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState<string>('');
@@ -91,49 +97,63 @@ const SyncManagementController = () => {
     if (itemsToSync.length === 0) return;
 
     console.log('itemsToSync =>> ', itemsToSync);
-    try {
-      setLocalLoading(true);
 
-      const payload = {
-        select_all: isAllSelected,
-        ids: isAllSelected ? [] : itemsToSync,
-      } as any;
+    const performSync = async () => {
+      try {
+        const payload = {
+          select_all: isAllSelected,
+          ids: isAllSelected ? [] : itemsToSync,
+        } as any;
 
-      const resAction: any = await dispatch(syncPLU(payload));
-      console.log('resAction syync ==>>', resAction);
+        const resAction: any = await dispatch(syncPLU(payload));
+        console.log('resAction syync ==>>', resAction);
 
-      // setLocalLoading(false);
-
-      const res = resAction?.payload ?? {};
-      if (res && res.status === true) {
-        showNotificationMessage(
-          `Successfully synced ${itemsToSync.length} PLU items to POS.`,
-        );
-        setSelectedIds([]);
-        setCurrentPage(1);
-        dispatch(
-          getPendingPLU({
-            page: 1,
-            limit: LIMIT,
-            search: debouncedSearch,
-            isLoadMore: false,
-          }),
-        );
-      } else {
-        const err = res?.error || 'Failed to sync PLU items.';
-        showNotificationMessage(err);
+        const res = resAction?.payload ?? {};
+        if (res && res.status === true) {
+          showNotificationMessage(
+            `Successfully synced ${res.synced} PLU items to POS.`,
+          );
+          if (res.failed > 0) {
+            showNotificationMessage(`Failed to sync ${res.failed} PLU items.`);
+          }
+          setSelectedIds([]);
+          setCurrentPage(1);
+          dispatch(
+            getPendingPLU({
+              page: 1,
+              limit: LIMIT,
+              search: debouncedSearch,
+              isLoadMore: false,
+            }),
+          );
+        } else {
+          const err = res?.error || 'Failed to sync PLU items.';
+          showNotificationMessage(err);
+        }
+      } catch (error) {
+        showNotificationMessage('Unable to sync PLU items.');
+      } finally {
+        setLocalLoading(false);
+        setLoadingMessage('');
       }
-    } catch (error) {
-      setLocalLoading(false);
-      showNotificationMessage('Unable to sync PLU items.');
-    } finally {
-      setLocalLoading(false);
+    };
+
+    setLoadingMessage('Syncing selected items...');
+    setLocalLoading(true);
+
+    if (Platform.OS === 'ios') {
+      setTimeout(() => {
+        performSync();
+      }, 100);
+    } else {
+      performSync();
     }
   };
 
   return {
     pendingPluList: mappedPendingPluList,
-    loading: fetching || localLoading,
+    loading: localLoading,
+    loadingMessage,
     loadingMore,
     search,
     setSearch,

@@ -17,6 +17,7 @@ export default function HomeScreen() {
     openAddModal,
     navigateToDashboard,
     navigateToSyncManagement,
+    navigateToScan,
     Modal,
   } = HomeScreenController();
 
@@ -38,10 +39,18 @@ export default function HomeScreen() {
         />
       </Pressable>
 
+      <Pressable style={styles.card} onPress={navigateToScan}>
+        <View style={styles.cardContent}>
+          <Text style={styles.cardTitle}>Scan to Add/Edit PLU</Text>
+          <Text style={styles.cardSubtitle}>Scan barcode to quickly add or edit</Text>
+        </View>
+        <Image source={Icons.scan} style={styles.iconImage} />
+      </Pressable>
+
       <Pressable style={styles.card} onPress={openAddModal}>
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>Add PLU</Text>
-          <Text style={styles.cardSubtitle}>Quickly create a new product</Text>
+          <Text style={styles.cardTitle}>Add PLU Manually</Text>
+          <Text style={styles.cardSubtitle}>Manually enter PLU details</Text>
         </View>
         <Image source={Icons.add} style={styles.iconImage} />
       </Pressable>
