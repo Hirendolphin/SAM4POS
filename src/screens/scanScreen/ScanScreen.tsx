@@ -16,7 +16,9 @@ import {
   StyleSheet,
   Text,
   View,
+  Vibration,
 } from 'react-native';
+import Sound from 'react-native-sound';
 import BarcodeMask from 'react-native-barcode-mask';
 import {
   Camera,
@@ -64,6 +66,11 @@ import {
 } from '../../redux/actions/pluAction';
 import { getGroupList } from '../../redux/actions/pluAction';
 import ProgressModal from '../../components/ProgressModal';
+
+let beepSound: any = null;
+
+
+
 const isAndroid15 = Platform.OS === 'android' && Platform.Version >= 35;
 type TabNavigationProp = BottomTabNavigationProp<any>;
 
@@ -144,9 +151,24 @@ export default function ScanScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      sound();
       getGroupListApi();
     }, []),
   );
+
+  const sound = () => {
+    try {
+      // mixWithOthers: true prevents the iOS Camera session from muting the audio
+      Sound.setCategory('Playback', true);
+      beepSound = new Sound(require('../../assets/beep.mp3'), (error: any) => {
+        if (error) {
+          console.log('failed to load the sound', error);
+        }
+      });
+    } catch (e) {
+      console.warn('Sound init failed: Rebuild your app.', e);
+    }
+  }
 
   const openAppSettings = () => {
     Linking.openSettings().catch(() => {
@@ -179,6 +201,18 @@ export default function ScanScreen() {
     onCodeScanned: async codes => {
       if (!isScanning) return;
       setIsScanning(false);
+
+      Vibration.vibrate(100);
+      if (beepSound) {
+        try {
+          // Reset the playback position so it can be played multiple times safely
+          beepSound.setCurrentTime(0);
+          beepSound.play();
+          sound()
+        } catch (e) {
+          console.log('Error playing sound', e);
+        }
+      }
 
       let scannedCode = codes?.[0]?.value?.toString() || '';
       const codeType = codes?.[0]?.type;
